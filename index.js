@@ -1,9 +1,12 @@
+
+var request = require("request");
+
 /**
  * This is the entry point for your Probot App.
  * @param {import('probot').Application} app - Probot's Application class.
  */
 module.exports = app => {
-  // Your code here
+
   app.log('Yay, the app was loaded!')
 
   app.on('issues.opened', async context => {
@@ -11,9 +14,27 @@ module.exports = app => {
     return context.github.issues.createComment(issueComment)
   })
 
-  // For more information on building apps:
-  // https://probot.github.io/docs/
+  app.on('issues.edited', async context => {
 
-  // To get your app running against GitHub, see:
-  // https://probot.github.io/docs/development/
+    //console.log(context.payload);
+
+    var options = {
+      method: 'GET',
+      url: 'https://randomuser.me/api/',
+      headers: {},
+      json:true
+    }
+    return request(options, function (error, response, body) {
+      if (error) { return console.log(error); }
+
+      const names = body.results[0].name
+      const message = 'Hello mr. ' + context.payload.sender.login + '. Do you know ' + names.title + ". " + names.last + "?"
+
+      const issueComment = context.issue({ body: message })
+      return context.github.issues.createComment(issueComment)
+
+    });
+
+  })
+
 }
