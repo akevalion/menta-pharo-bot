@@ -60,9 +60,29 @@ MeServer >> initializeTeapot [
 			TeaResponse badRequest body: { 'error' -> ex messageText } asDictionary ].
 ]
 
+{ #category : #testing }
+MeServer >> isRunning [
+	^ teapot isNotNil and: [ teapot server isRunning ]
+]
+
 { #category : #accessing }
 MeServer >> port [
 	^ 8083
+]
+
+{ #category : #printing }
+MeServer >> printOn: aStream [
+	super printOn: aStream.
+	aStream
+		space;
+		nextPut: $(;
+		print: self port;
+		nextPutAll: ' - ';
+		nextPutAll:
+			(self isRunning
+				ifTrue: [ 'running' ]
+				ifFalse: [ 'stopped' ]);
+		nextPut: $)
 ]
 
 { #category : #operations }
