@@ -41,7 +41,9 @@ MeServer >> handleIssuesEdited: req [
 	| payload |
 	payload := STON fromString: req entity string.
 	payload inspect.
-	^ 'Very nice, you edited "' , (((payload at: 'changes') at: 'body') at: 'from') , '". I may approve it.'
+	^ ['Very nice, you edited "' , (((payload at: 'changes') at: 'body') at: 'from') , '". I may approve it.'] 
+		on: KeyNotFound
+		do: [ :error | MeError signal: error messageText ]
 ]
 
 { #category : #operations }
