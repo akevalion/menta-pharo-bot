@@ -1,6 +1,8 @@
 
 var request = require("request");
 
+const reportServerBaseUrl = "http://localhost:8083/"
+
 /**
  * This is the entry point for your Probot App.
  * @param {import('probot').Application} app - Probot's Application class.
@@ -19,20 +21,19 @@ module.exports = app => {
     //console.log(context.payload);
 
     var options = {
-      method: 'GET',
-      url: 'https://randomuser.me/api/',
-      headers: {},
+      method: 'POST',
+      url: reportServerBaseUrl + 'issues.edited',
+      headers: {'Content-Type': 'application/json'},
+      body: context.payload,
       json:true
     }
     return request(options, function (error, response, body) {
-      if (error) { return console.log(error); }
+      if (error) { return console.log(error) }
 
-      const names = body.results[0].name
-      const message = 'Hello mr. ' + context.payload.sender.login + '. Do you know ' + names.title + ". " + names.last + "?"
+      console.log(body)
 
-      const issueComment = context.issue({ body: message })
+      const issueComment = context.issue({ body: body })
       return context.github.issues.createComment(issueComment)
-
     });
 
   })
