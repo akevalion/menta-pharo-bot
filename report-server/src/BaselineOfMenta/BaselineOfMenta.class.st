@@ -14,7 +14,7 @@ BaselineOfMenta >> baseline: spec [
 				project: 'Teapot'
 				with: [ spec
 						className: #ConfigurationOfTeapot;
-						versionString: #stable;
+						versionString: '2.5';
 						repository: 'http://smalltalkhub.com/mc/zeroflag/Teapot/main' ].
 			spec package: 'Menta'.
 			spec group: 'default' with: #('Menta')
