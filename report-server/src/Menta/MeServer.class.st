@@ -50,7 +50,7 @@ MeServer >> handleIssuesEdited: req [
 MeServer >> initializeTeapot [
 	logger := MeLogger new.
 	teapot := Teapot configure: {
-		#port -> 8083.
+		#port -> self port.
 		#debugMode -> true }.
 
 	teapot
@@ -58,6 +58,11 @@ MeServer >> initializeTeapot [
 		exception: MeError -> [ :ex :req | 
 			logger logError: ex.
 			TeaResponse badRequest body: { 'error' -> ex messageText } asDictionary ].
+]
+
+{ #category : #accessing }
+MeServer >> port [
+	^ 8083
 ]
 
 { #category : #operations }
