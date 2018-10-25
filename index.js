@@ -38,11 +38,8 @@ module.exports = app => {
     });
   })
 
-  // Get an express router to expose new HTTP endpoints
-  const route = app.route('/testing');
-
-  // Liveness check
-  route.get('/alive', (req, res) => res.end('yes'))
+  // Get an express router to expose new HTTP endpoints (a liveness check)
+  app.route('/alive').get('/', (req, res) => res.end('yes'))
 
  
 }

@@ -22,6 +22,11 @@ rm -rf current
 mv menta-pharo-bot current
 cd current
 ./screen_start_all.sh
-
-echo "Deploy SUCCESS"
 EOF
+
+# Test it
+curl --fail  http://gate.dcc.uchile.cl:3000/alive
+
+echo
+echo
+echo "Deploy SUCCESS"
