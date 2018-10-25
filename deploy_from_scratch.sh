@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# See what is executed and fail on bad exit codes
+set -ex
+
 SSH_TARGET=mdias@huelmo.dcc.uchile.cl
 
 ssh $SSH_TARGET /bin/bash << EOF
@@ -25,8 +28,7 @@ cd current
 EOF
 
 # Test it
+sleep 5
 curl --fail  http://gate.dcc.uchile.cl:3000/alive
 
-echo
-echo
-echo "Deploy SUCCESS"
+printf "\n\nDeploy SUCCESS"
