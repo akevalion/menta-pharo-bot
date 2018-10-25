@@ -8,4 +8,4 @@ cd report-server
 cd ..
 npm install
 
-echo "Build SUCCESS"
+printf "\n\nBuild all: SUCCESS\n"

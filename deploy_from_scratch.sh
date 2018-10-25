@@ -31,4 +31,4 @@ EOF
 sleep 5
 curl --fail  http://gate.dcc.uchile.cl:3000/alive
 
-printf "\n\nDeploy SUCCESS"
+printf "\n\nDeploy: SUCCESS\n"
