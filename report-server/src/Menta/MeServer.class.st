@@ -37,10 +37,14 @@ MeServer >> convertedToJson: object [
 ]
 
 { #category : #handling }
+MeServer >> handleAlive: aTeapotRequest [
+	^ DateAndTime now asString
+]
+
+{ #category : #handling }
 MeServer >> handleIssuesEdited: req [
 	| payload |
 	payload := STON fromString: req entity string.
-	payload inspect.
 	^ ['Very nice, you edited "' , (((payload at: 'changes') at: 'body') at: 'from') , '". I may approve it.'] 
 		on: KeyNotFound
 		do: [ :error | MeError signal: error messageText ]
@@ -54,6 +58,7 @@ MeServer >> initializeTeapot [
 		#debugMode -> true }.
 
 	teapot
+		GET:  '/alive'         -> (Send message: #handleAlive: to: self);
 		POST: '/issues.edited' -> (Send message: #handleIssuesEdited: to: self);
 		exception: MeError -> [ :ex :req | 
 			logger logError: ex.
