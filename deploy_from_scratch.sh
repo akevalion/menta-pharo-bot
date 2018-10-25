@@ -19,4 +19,5 @@ mv menta-pharo-bot current
 cd current
 ./screen_start_all.sh
 
+echo "Deploy SUCCESS"
 EOF
