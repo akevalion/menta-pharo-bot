@@ -1,6 +1,7 @@
 
 var request = require("request");
 
+// Pharo report-server should listen here
 const reportServerBaseUrl = "http://localhost:8083/"
 
 /**
@@ -35,7 +36,13 @@ module.exports = app => {
       const issueComment = context.issue({ body: body })
       return context.github.issues.createComment(issueComment)
     });
-
   })
 
+  // Get an express router to expose new HTTP endpoints
+  const route = app.route('/testing');
+
+  // Liveness check
+  route.get('/alive', (req, res) => res.end('yes'))
+
+ 
 }
