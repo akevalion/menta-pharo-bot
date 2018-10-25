@@ -1,4 +1,4 @@
 #!/bin/bash
 
-# kill possible servers already running
-pkill pharo node
+screen -XS probot-server quit
+screen -XS report-server quit
