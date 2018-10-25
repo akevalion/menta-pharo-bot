@@ -3,15 +3,19 @@
 SSH_TARGET=mdias@huelmo.dcc.uchile.cl
 
 ssh $SSH_TARGET /bin/bash << EOF
+# Environment variables
+. .profile
+
+# See what is executed and fail on bad exit codes
 set -ex
 
-# download and build
+# Download and build
 rm -rf menta-pharo-bot
 git clone https://github.com/tinchodias/menta-pharo-bot.git --depth=1
 cd menta-pharo-bot
 ./build_all.sh
 
-# switch to new version
+# Switch to new version
 ./screen_stop_all.sh
 cd ..
 rm -rf current
