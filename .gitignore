@@ -1,7 +1,10 @@
 node_modules
 npm-debug.log
-*.pem
-.env
 package-lock.json
 coverage
 report-server/build/
+
+# non-public data
+*.pem
+.env
+deploy_from_scratch.sh
