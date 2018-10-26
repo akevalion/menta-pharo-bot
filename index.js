@@ -1,5 +1,6 @@
 
 var request = require("request");
+var rp = require('request-promise')
 
 // Pharo report-server should listen here
 const reportServerBaseUrl = "http://localhost:8083/"
@@ -10,7 +11,7 @@ const reportServerBaseUrl = "http://localhost:8083/"
  */
 module.exports = app => {
 
-  app.log('Yay, the app was loaded!')
+  app.log('App loaded!')
 
   app.on('issues.opened', async context => {
     const issueComment = context.issue({ body: 'Thanks for opening this issue!' })
@@ -21,13 +22,16 @@ module.exports = app => {
 
     //console.log(context.payload);
 
-    var options = {
+    const options = {
       method: 'POST',
       url: reportServerBaseUrl + 'issues.edited',
       headers: {'Content-Type': 'application/json'},
       body: context.payload,
       json:true
     }
+
+// TODO: convert to rp and usetest when pharo is down
+
     return request(options, function (error, response, body) {
       if (error) { return console.log(error) }
 
@@ -35,11 +39,16 @@ module.exports = app => {
 
       const issueComment = context.issue({ body: body })
       return context.github.issues.createComment(issueComment)
-    });
+    })
   })
 
   // Get an express router to expose new HTTP endpoints (a liveness check)
-  app.route('/alive').get('/', (req, res) => res.end('yes'))
+  app.route('/alive').get('/', (req, res) => {
+
+    console.log("I'm alive, so let's ask to report server.")
+
+    return rp(reportServerBaseUrl + 'alive').then(body => res.end(body)).catch(_ => res.sendStatus(500))
+  })
 
  
 }
