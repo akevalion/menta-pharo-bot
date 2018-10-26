@@ -18,7 +18,6 @@ module.exports = app => {
   })
 
   app.on('issues.edited', async context => {
-    //console.log(context.payload);
 
     const options = {
       method: 'POST',
@@ -30,7 +29,6 @@ module.exports = app => {
 
     return rp(options)
       .then(body => {
-        console.log(body)
         const issueComment = context.issue({ body: body })
         return context.github.issues.createComment(issueComment)
       })
@@ -38,8 +36,12 @@ module.exports = app => {
 
   // Get an express router to expose new HTTP endpoints (a liveness check)
   app.route('/alive').get('/', (req, res) => {
-    // console.log("I'm alive, so let's ask to report server.")
-    return rp(reportServerBaseUrl + 'alive')
+    const options = {
+      method: 'GET',
+      url: reportServerBaseUrl + 'alive'
+    }
+
+    return rp(options)
       .then(body => res.end(body))
       .catch(_ => res.send.status(500).end("Report server is not alive"))
   })
