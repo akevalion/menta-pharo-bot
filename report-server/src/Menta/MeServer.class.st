@@ -28,17 +28,28 @@ MeServer class >> start [
 ]
 
 { #category : #operations }
-MeServer >> convertedToJson: object [
-	^ String
-		streamContents: [ :stream | 
-			(NeoJSONWriter on: stream)
-				writeNil: true;
-				nextPut: object ]
+MeServer >> handleAfterRequest: aTeaRequest response: aResponse [
+	logger
+		logInfo:
+			(String
+				streamContents: [ :stream | 
+					aResponse statusLine printCodeAndReasonOn: stream.
+					aResponse hasEntity
+						ifTrue: [ 
+							stream space.
+							aResponse entity printContentTypeAndLengthOn: stream ] ]).
+	aResponse hasEntity
+		ifTrue: [ logger logTrace: aResponse entity contents ]
 ]
 
 { #category : #handling }
 MeServer >> handleAlive: aTeapotRequest [
 	^ DateAndTime now asString
+]
+
+{ #category : #operations }
+MeServer >> handleBeforeRequest: aTeaRequest [
+	logger logInfo: (String streamContents: [ :stream | aTeaRequest requestLine printMethodAndUriOn: stream ])
 ]
 
 { #category : #handling }
@@ -53,13 +64,12 @@ MeServer >> handleIssuesEdited: req [
 { #category : #operations }
 MeServer >> initializeTeapot [
 	logger := MeLogger new.
-	teapot := Teapot configure: {
-		#port -> self port.
-		#debugMode -> true }.
-
+	teapot := Teapot configure: { #port -> self port }.
 	teapot
-		GET:  '/alive'         -> (Send message: #handleAlive: to: self);
-		POST: '/issues.edited' -> (Send message: #handleIssuesEdited: to: self);
+		before: '*'              -> (Send message: #handleBeforeRequest: to: self);
+		after:  '*'              -> (Send message: #handleAfterRequest:response: to: self);
+		GET:    '/alive'         -> (Send message: #handleAlive: to: self);
+		POST:   '/issues.edited' -> (Send message: #handleIssuesEdited: to: self);
 		exception: MeError -> [ :ex :req | 
 			logger logError: ex.
 			TeaResponse badRequest body: { 'error' -> ex messageText } asDictionary ].
