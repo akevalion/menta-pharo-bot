@@ -1,5 +1,10 @@
 
 const rp = require('request-promise')
+const express = require('express')
+const path = require('path')
+
+// This server will serve files in this directory
+const public = path.join(__dirname, '../public')
 
 // Pharo report-server should listen here
 const reportServerBaseUrl = "http://localhost:8083/"
@@ -45,5 +50,7 @@ module.exports = app => {
       .then(body => res.end(body))
       .catch(_ => res.send.status(500).end("Report server is not alive"))
   })
- 
+
+  app.route('/public').use(express.static(public))
+
 }
