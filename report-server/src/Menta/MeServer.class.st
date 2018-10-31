@@ -52,15 +52,6 @@ MeServer >> handleBeforeRequest: aTeaRequest [
 	logger logInfo: (String streamContents: [ :stream | aTeaRequest requestLine printMethodAndUriOn: stream ])
 ]
 
-{ #category : #handling }
-MeServer >> handleIssuesEdited: req [
-	| payload |
-	payload := STON fromString: req entity string.
-	^ ['Very nice, you edited "' , (((payload at: 'changes') at: 'body') at: 'from') , '". I may approve it.'] 
-		on: KeyNotFound
-		do: [ :error | MeError signal: error messageText ]
-]
-
 { #category : #operations }
 MeServer >> initializeTeapot [
 	logger := MeLogger new.
@@ -69,10 +60,10 @@ MeServer >> initializeTeapot [
 		before: '*'              -> (Send message: #handleBeforeRequest: to: self);
 		after:  '*'              -> (Send message: #handleAfterRequest:response: to: self);
 		GET:    '/alive'         -> (Send message: #handleAlive: to: self);
-		POST:   '/issues.edited' -> (Send message: #handleIssuesEdited: to: self);
 		exception: MeError -> [ :ex :req | 
 			logger logError: ex.
 			TeaResponse badRequest body: { 'error' -> ex messageText } asDictionary ].
+
 ]
 
 { #category : #testing }
