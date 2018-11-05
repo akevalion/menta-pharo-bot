@@ -1,6 +1,8 @@
-# menta-pharo-bot
+# Menta
+<img src="assets/mint.png" alt="logo" width="100"/>
 
-> A GitHub App built with [Probot](https://probot.github.io) that A Probot app
+> A GitHub App built with [Probot](https://probot.github.io) that uses Pharo and Roassal2 to generate visualizations.
+
 
 ## Setup
 
