@@ -21,3 +21,7 @@ For more, check out the [Contributing Guide](CONTRIBUTING.md).
 ## License
 
 [ISC](LICENSE) © 2018 Martín Dias <tinchodias@gmail.com> (tinchodias.github.io)
+
+## Logo/Avatar
+
+Thanks to https://openclipart.org/detail/192959/mint-two
