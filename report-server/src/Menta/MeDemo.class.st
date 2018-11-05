@@ -55,29 +55,23 @@ MeDemo >> exportLetterCloudFor: aString fileName: fileName [
 
 { #category : #handling }
 MeDemo >> handleIssuesEdited: req [
-	| payload oldText newText fileName |
+	| payload oldText newText fileNameForOld fileNameForNew |
 	payload := STON fromString: req entity string.
 	oldText := payload chainedAt: #(changes body from).
 	newText := payload chainedAt: #(issue body).
 	
-	fileName := UUID new asString36, '.png'.
-	self exportLetterCloudFor: newText fileName: fileName.
+	fileNameForOld := UUID new asString36, '.png'.
+	self exportLetterCloudFor: oldText fileName: fileNameForOld.
+
+	fileNameForNew := UUID new asString36, '.png'.
+	self exportLetterCloudFor: newText fileName: fileNameForNew.
 	
-	^'{1}
-![LetterCloud]({1})
-' format: {self publicUrlFor: fileName}
+	^'You edited a comment:
 
-	
-	"^ 'Hey! 
-You edited from:
-	
-{1} 
-
-to:
-
-{2}
-
-We know it!' format: {oldText. newText. self publicUrlFor: fileName}"
+| Before | After |
+| ------ | ----- |
+| ![Before]({1}) | ![After]({2}) |
+' format: {self publicUrlFor: fileNameForOld. self publicUrlFor: fileNameForNew}
 
 ]
 
