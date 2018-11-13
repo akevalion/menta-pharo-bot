@@ -1,6 +1,7 @@
 "
-MeServer new start.
 Teapot stopAll.
+MeServer new start.
+
 "
 Class {
 	#name : #MeServer,
@@ -14,18 +15,6 @@ Class {
 	],
 	#category : #Menta
 }
-
-{ #category : #examples }
-MeServer class >> default [
-	^ default ifNil: [ default := self new ]
-]
-
-{ #category : #examples }
-MeServer class >> start [
-	<example>
-	
-	^self default start
-]
 
 { #category : #operations }
 MeServer >> handleAfterRequest: aTeaRequest response: aResponse [
@@ -49,7 +38,11 @@ MeServer >> handleAlive: aTeapotRequest [
 
 { #category : #operations }
 MeServer >> handleBeforeRequest: aTeaRequest [
-	logger logInfo: (String streamContents: [ :stream | aTeaRequest requestLine printMethodAndUriOn: stream ])
+	self verifySignatureOf: aTeaRequest.
+	logger
+		logInfo:
+			(String
+				streamContents: [ :stream | aTeaRequest requestLine printMethodAndUriOn: stream ])
 ]
 
 { #category : #operations }
@@ -73,7 +66,7 @@ MeServer >> isRunning [
 
 { #category : #accessing }
 MeServer >> port [
-	^ 8083
+	^ 3000
 ]
 
 { #category : #printing }
@@ -92,13 +85,6 @@ MeServer >> printOn: aStream [
 ]
 
 { #category : #operations }
-MeServer >> restart [
-	self
-		stop;
-		start
-]
-
-{ #category : #operations }
 MeServer >> start [
 	self initializeTeapot.
 	teapot start
@@ -107,4 +93,40 @@ MeServer >> start [
 { #category : #operations }
 MeServer >> stop [
 	teapot stop
+]
+
+{ #category : #operations }
+MeServer >> verifySignatureOf: aTeaRequest [
+	| hash secret calculatedSignature signature payload |
+	secret := (OSPlatform current environment asDictionary
+		at: 'WEBHOOK_SECRET') asByteArray.
+	signature := aTeaRequest headers
+		at: 'X-Hub-Signature'
+		ifAbsent: [ '' ].
+	hash := (HMAC on: SHA1)
+		key: secret;
+		digestMessage: aTeaRequest contents.
+	calculatedSignature := 'sha1=' , hash hex.
+	calculatedSignature = signature
+		ifFalse: [ self error: 'wrong signature'	"TODO: What's the right answer?" ].
+			
+		
+
+	(aTeaRequest headers at: 'X-Github-Event') logCr.
+	"'issues'"	
+
+
+	payload := STON fromString: aTeaRequest entity string.
+
+1halt.
+
+	IceGitHubAPI new 
+		credentials: (MeGithubAppCredentials new
+			host: 'github.com';
+			yourself);
+		addComment: (payload chainedAt: #(repository owner login))
+			project: (payload chainedAt: #(repository name))
+			number: (payload chainedAt: #(issue number))
+			data: { #body -> 'messageString' } asDictionary.
+
 ]
