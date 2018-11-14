@@ -98,6 +98,11 @@ MeServer >> stop [
 { #category : #operations }
 MeServer >> verifySignatureOf: aTeaRequest [
 	| hash secret calculatedSignature signature payload |
+	
+	"Todo: extract"
+	Dotenv new dotenvFile: '../../probot-server/.env' asFileReference; config.
+	
+	
 	secret := (OSPlatform current environment asDictionary
 		at: 'WEBHOOK_SECRET') asByteArray.
 	signature := aTeaRequest headers
@@ -121,9 +126,7 @@ MeServer >> verifySignatureOf: aTeaRequest [
 1halt.
 
 	IceGitHubAPI new 
-		credentials: (MeGithubAppCredentials new
-			host: 'github.com';
-			yourself);
+		credentials: MeGithubAppCredentials new;
 		addComment: (payload chainedAt: #(repository owner login))
 			project: (payload chainedAt: #(repository name))
 			number: (payload chainedAt: #(issue number))
