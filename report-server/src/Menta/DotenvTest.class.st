@@ -11,12 +11,12 @@ DotenvTest >> testBasicVariable [
 		stream nextPutAll: 'BASIC=basic' ]; yourself.
 	
 	dotenv := Dotenv new
-		dotenvFile: file;
+		path: file;
 		config.
 
-	self assert: dotenv dotenvDictionary size equals: 1.
-	self assert: (dotenv dotenvDictionary includesKey: 'BASIC').
-	self assert: (dotenv dotenvDictionary at: 'BASIC') equals: 'basic'.
+	self assert: dotenv variablesDictionary size equals: 1.
+	self assert: (dotenv variablesDictionary includesKey: 'BASIC').
+	self assert: (dotenv variablesDictionary at: 'BASIC') equals: 'basic'.
 ]
 
 { #category : #tests }
@@ -27,11 +27,11 @@ DotenvTest >> testDoubleQuoted [
 		yourself.
 	
 	dotenv := Dotenv new
-		dotenvFile: file;
+		path: file;
 		config.
 
-	self assert: dotenv dotenvDictionary size equals: 1.
-	self assert: (dotenv dotenvDictionary at: 'DOUBLE_QUOTE') equals: 'quoted'.
+	self assert: dotenv variablesDictionary size equals: 1.
+	self assert: (dotenv variablesDictionary at: 'DOUBLE_QUOTE') equals: 'quoted'.
 ]
 
 { #category : #tests }
@@ -42,11 +42,11 @@ DotenvTest >> testDoubleQuotedMultipleLines [
 		yourself.
 	
 	dotenv := Dotenv new
-		dotenvFile: file;
+		path: file;
 		config.
 
-	self assert: dotenv dotenvDictionary size equals: 1.
-	self assert: (dotenv dotenvDictionary at: 'DOUBLE_QUOTE') equals: 'new
+	self assert: dotenv variablesDictionary size equals: 1.
+	self assert: (dotenv variablesDictionary at: 'DOUBLE_QUOTE') equals: 'new
 line' withUnixLineEndings
 ]
 
@@ -55,9 +55,9 @@ DotenvTest >> testEmptyFile [
 	| file dotenv |
 	file := (FileSystem memory / '.env') ensureCreateFile.
 	dotenv := Dotenv new
-		dotenvFile: file;
+		path: file;
 		config.
-	self assert: dotenv dotenvDictionary isEmpty
+	self assert: dotenv variablesDictionary isEmpty
 ]
 
 { #category : #tests }
@@ -67,11 +67,11 @@ DotenvTest >> testEmptyVariable [
 		stream nextPutAll: 'EMPTY=' ]; yourself.
 
 	dotenv := Dotenv new
-		dotenvFile: file;
+		path: file;
 		config.
 
-	self assert: dotenv dotenvDictionary size equals: 1.
-	self assert: (dotenv dotenvDictionary at: 'EMPTY') equals: ''.
+	self assert: dotenv variablesDictionary size equals: 1.
+	self assert: (dotenv variablesDictionary at: 'EMPTY') equals: ''.
 ]
 
 { #category : #tests }
@@ -82,9 +82,9 @@ DotenvTest >> testSingleQuoted [
 		yourself.
 	
 	dotenv := Dotenv new
-		dotenvFile: file;
+		path: file;
 		config.
 
-	self assert: dotenv dotenvDictionary size equals: 1.
-	self assert: (dotenv dotenvDictionary at: 'SINGLE_QUOTE') equals: 'quoted'.
+	self assert: dotenv variablesDictionary size equals: 1.
+	self assert: (dotenv variablesDictionary at: 'SINGLE_QUOTE') equals: 'quoted'.
 ]

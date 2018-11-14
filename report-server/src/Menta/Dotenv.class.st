@@ -2,51 +2,33 @@ Class {
 	#name : #Dotenv,
 	#superclass : #Object,
 	#instVars : [
-		'dotenvFile'
+		'path'
 	],
 	#category : #'Menta-Dotenv'
 }
 
-{ #category : #accessing }
+{ #category : #applying }
 Dotenv >> config [
-
 	| initial |
-	initial := OSPlatform current environment asDictionary.
-	
-	self dotenvDictionary keysAndValuesDo: [ :key :value |
-		(initial includesKey: key) ifFalse: [ 
-			OSPlatform current environment setEnv: key value: value ] ]
+	initial := self environmentVariablesDictionary.
+	self variablesDictionary
+		keysAndValuesDo: [ :key :value | 
+			(initial includesKey: key)
+				ifFalse: [ self environmentVariablesAt: key put: value ] ]
 ]
 
-{ #category : #accessing }
-Dotenv >> dotenvDictionary [
-	self dotenvFile exists
-		ifFalse: [ ^ Dictionary new ].
-	^ self dotenvFile contents lines
-		inject: Dictionary new
-		into: [ :dict :each | 
-			| lineStream key value |
-			lineStream := each readStream.
-			key := lineStream upTo: $=.
-			key ifEmpty: [ self error: 'dotenv: invalid variable name' ].
-			value := self parseValue: lineStream upToEnd.
-			dict
-				at: key put: value;
-				yourself ]
+{ #category : #'applying - private' }
+Dotenv >> environmentVariablesAt: key put: value [
+	^ OSPlatform current environment setEnv: key value: value
 ]
 
-{ #category : #accessing }
-Dotenv >> dotenvFile [
-	^ dotenvFile ifNil: [ dotenvFile := '.env' asFileReference ]
+{ #category : #'applying - private' }
+Dotenv >> environmentVariablesDictionary [
+	^ OSPlatform current environment asDictionary
 ]
 
-{ #category : #accessing }
-Dotenv >> dotenvFile: aFileReference [ 
-	dotenvFile := aFileReference
-]
-
-{ #category : #accessing }
-Dotenv >> parseValue: aString [
+{ #category : #'parsing - private' }
+Dotenv >> parsedValue: aString [
 	| result |
 	result := aString trim.
 
@@ -57,4 +39,31 @@ Dotenv >> parseValue: aString [
 		ifTrue: [ ^ Character lf join: (result allButFirst allButLast splitOn: '\n') ].
 		
 	^result
+]
+
+{ #category : #accessing }
+Dotenv >> path [
+	^ path ifNil: [ path := '.env' asPath ]
+]
+
+{ #category : #accessing }
+Dotenv >> path: aPath [ 
+	path := aPath
+]
+
+{ #category : #accessing }
+Dotenv >> variablesDictionary [
+	self path exists
+		ifFalse: [ ^ Dictionary new ].
+	^ self path contents lines
+		inject: Dictionary new
+		into: [ :dict :each | 
+			| lineStream key value |
+			lineStream := each readStream.
+			key := lineStream upTo: $=.
+			key ifEmpty: [ self error: 'dotenv: invalid variable name' ].
+			value := self parsedValue: lineStream upToEnd.
+			dict
+				at: key put: value;
+				yourself ]
 ]

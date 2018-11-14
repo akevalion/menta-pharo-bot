@@ -100,7 +100,7 @@ MeServer >> verifySignatureOf: aTeaRequest [
 	| hash secret calculatedSignature signature payload |
 	
 	"Todo: extract"
-	Dotenv new dotenvFile: '../../probot-server/.env' asFileReference; config.
+	Dotenv new path: '../../probot-server/.env' asFileReference; config.
 	
 	
 	secret := (OSPlatform current environment asDictionary
