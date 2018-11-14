@@ -33,7 +33,17 @@ DotenvTest >> testBasic [
 ]
 
 { #category : #tests }
-DotenvTest >> testDoubleQuoted [
+DotenvTest >> testBlanks [
+	self dotenvWrite: '
+
+		VAR = var      '.
+
+	self assert: dotenv variablesDictionary size equals: 1.
+	self assert: (dotenv variablesDictionary at: 'VAR') equals: 'var'.
+]
+
+{ #category : #tests }
+DotenvTest >> testDoubleQuote [
 	self dotenvWrite: 'DOUBLE_QUOTE="quoted"'.
 	
 	self assert: dotenv variablesDictionary size equals: 1.
@@ -56,7 +66,19 @@ DotenvTest >> testEmptyFile [
 ]
 
 { #category : #tests }
-DotenvTest >> testMultipleLines [
+DotenvTest >> testMultipleVariables [
+	self dotenvWrite: '
+		VAR1=var1
+		VAR2=var2
+'.
+
+	self assert: dotenv variablesDictionary size equals: 2.
+	self assert: (dotenv variablesDictionary at: 'VAR1') equals: 'var1'.
+	self assert: (dotenv variablesDictionary at: 'VAR2') equals: 'var2'.
+]
+
+{ #category : #tests }
+DotenvTest >> testNewLine [
 	self dotenvWrite: 'DOUBLE_QUOTE="new\nline"'.
 
 	self assert: dotenv variablesDictionary size equals: 1.
@@ -67,7 +89,7 @@ line' withUnixLineEndings
 ]
 
 { #category : #tests }
-DotenvTest >> testSingleQuoted [
+DotenvTest >> testSingleQuote [
 	self dotenvWrite: 'SINGLE_QUOTE=''quoted'''.
 
 	self assert: dotenv variablesDictionary size equals: 1.

@@ -60,10 +60,12 @@ Dotenv >> variablesDictionary [
 		into: [ :dict :each | 
 			| lineStream key value |
 			lineStream := each readStream.
-			key := lineStream upTo: $=.
-			key ifEmpty: [ self error: 'dotenv: invalid variable name' ].
-			value := self parsedValue: lineStream upToEnd.
-			dict
-				at: key put: value;
-				yourself ]
+			key := (lineStream upTo: $=) trimBoth.
+			key ifNotEmpty: [ 
+				"Skip if empty"
+				value := self parsedValue: lineStream upToEnd trimBoth.
+				dict
+					at: key put: value;
+					yourself ].
+			dict ]
 ]
