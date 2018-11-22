@@ -4,15 +4,38 @@
 > A GitHub App built with [Probot](https://probot.github.io) that uses Pharo and Roassal2 to generate visualizations.
 
 
-## Setup
+## Deployment Steps
+
+1. Prepare:
 
 ```sh
-# Install dependencies
-npm install
-
-# Run the bot
-npm start
+./build_all.sh
+./screen_start_all.sh
 ```
+
+The Probot server will start at http://localhost:3000/. 
+
+2. You need to browse this URL and press the Register button to create a Github App.
+
+3. Create a file with the following environment variables:
+
+```
+export APP_ID=<number>
+export PRIVATE_KEY_PATH=/path/to/private-key.pem
+export WEBHOOK_SECRET=<random>
+```
+
+You can get this information from the Github App's configuration page (https://github.com/settings/apps/<APP_NAME>).
+
+4. Update `report-server/start.sh` with the right URL.
+
+5. Restart:
+
+```sh
+./screen_stop_all.sh
+./screen_start_all.sh
+```
+
 
 ## Contributing
 
