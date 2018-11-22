@@ -1,7 +1,5 @@
 "
-Teapot stopAll.
-MeServer new start.
-
+This is an HTTP server that can receive Github hooks.
 "
 Class {
 	#name : #MeServer,
@@ -46,12 +44,27 @@ MeServer >> handleBeforeRequest: aTeaRequest [
 ]
 
 { #category : #operations }
+MeServer >> handleGithubEvent: eventString payload: payloadDictionary [
+
+	^self subclassResponsibility
+]
+
+{ #category : #operations }
+MeServer >> handleGithubHook: aTeaRequest [
+	| event payload |
+	event := aTeaRequest headers at: 'X-Github-Event'.
+	payload := STON fromString: aTeaRequest entity string.
+	^ self handleGithubEvent: event payload: payload
+]
+
+{ #category : #operations }
 MeServer >> initializeTeapot [
 	logger := MeLogger new.
 	teapot := Teapot configure: { #port -> self port }.
 	teapot
 		before: '*'              -> (Send message: #handleBeforeRequest: to: self);
 		after:  '*'              -> (Send message: #handleAfterRequest:response: to: self);
+		POST:   '*'              -> (Send message: #handleGithubHook: to: self);
 		GET:    '/alive'         -> (Send message: #handleAlive: to: self);
 		exception: MeError -> [ :ex :req | 
 			logger logError: ex.
@@ -99,9 +112,7 @@ MeServer >> stop [
 MeServer >> verifySignatureOf: aTeaRequest [
 	| hash secret calculatedSignature signature payload |
 	
-	"Todo: extract"
-	Dotenv new path: '../../probot-server/.env' asFileReference; config.
-	
+	aTeaRequest contents ifNil: [ ^self. "for example, /alive stops here." ].
 	
 	secret := (OSPlatform current environment asDictionary
 		at: 'WEBHOOK_SECRET') asByteArray.
@@ -114,22 +125,5 @@ MeServer >> verifySignatureOf: aTeaRequest [
 	calculatedSignature := 'sha1=' , hash hex.
 	calculatedSignature = signature
 		ifFalse: [ self error: 'wrong signature'	"TODO: What's the right answer?" ].
-			
-		
-
-	(aTeaRequest headers at: 'X-Github-Event') logCr.
-	"'issues'"	
-
-
-	payload := STON fromString: aTeaRequest entity string.
-
-1halt.
-
-	IceGitHubAPI new 
-		credentials: MeGithubAppCredentials new;
-		addComment: (payload chainedAt: #(repository owner login))
-			project: (payload chainedAt: #(repository name))
-			number: (payload chainedAt: #(issue number))
-			data: { #body -> 'messageString' } asDictionary.
 
 ]

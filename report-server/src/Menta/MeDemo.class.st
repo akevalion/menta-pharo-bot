@@ -1,4 +1,15 @@
 "
+How to Prepare
+==============
+
+1. Run in a terminal, in the root of the repository:
+
+sshfs -o nonempty -p722 mdias@gate.dcc.uchile.cl:public/ ./public
+
+
+2. Evaluate in this image:
+ 
+Dotenv new path: '../../probot-server/.env' asFileReference; config.
 Teapot stopAll.
 MeDemo new 
 	publicFiles: (MePublicFiles new
@@ -6,6 +17,19 @@ MeDemo new
 		path: (FileLocator imageDirectory parent parent / 'public') asPath;
 		yourself);
 	start.
+
+
+3. Probe alive with:
+
+curl localhost:3000/alive
+
+
+4. In dev environment, start smee client:
+
+cd probot-server/ && node start-smee.js
+
+
+5. Trigger Github Hooks
 
 "
 Class {
@@ -34,6 +58,20 @@ MeDemo >> exportCloudFor: aString at: pngPath [
 		export
 ]
 
+{ #category : #operations }
+MeDemo >> handleGithubEvent: eventString payload: payloadDictionary [
+
+	1halt.
+
+	IceGitHubAPI new 
+		credentials: MeGithubAppCredentials new;
+		addComment: (payloadDictionary chainedAt: #(repository owner login))
+			project: (payloadDictionary chainedAt: #(repository name))
+			number: (payloadDictionary chainedAt: #(issue number))
+			data: { #body -> 'messageString' } asDictionary.
+
+]
+
 { #category : #handling }
 MeDemo >> handleIssuesEdited: req [
 	| payload oldText newText base fileNameForOld fileNameForNew |
@@ -54,14 +92,6 @@ MeDemo >> handleIssuesEdited: req [
 | ------ | ----- |
 | ![Before]({1}) | ![After]({2}) |
 ' format: {publicFiles urlFor: fileNameForOld. publicFiles urlFor: fileNameForNew}
-
-]
-
-{ #category : #operations }
-MeDemo >> initializeTeapot [
-	super initializeTeapot.
-	teapot
-		POST:   '/issues.edited' -> (Send message: #handleIssuesEdited: to: self)
 
 ]
 

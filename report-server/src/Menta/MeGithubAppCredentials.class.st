@@ -16,7 +16,10 @@ MeGithubAppCredentials >> prepareRequest: aZnClient [
 				at: 'iss' put: (OSPlatform current environment asDictionary at: 'APP_ID');
 				yourself).
 	jws key: (OSPlatform current environment asDictionary at: 'PRIVATE_KEY').
-	1 halt.
 	tokenString := jws compactSerialized.
-	aZnClient headerAt: 'Bearer' put: tokenString
+	aZnClient headerAt: 'Bearer' put: tokenString.
+	aZnClient headerAt: 'User-Agent' put: 'menta-pharo-bot'.
+
+	1 halt.
+
 ]
