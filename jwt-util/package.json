@@ -1,0 +1,15 @@
+{
+  "name": "jwt-util",
+  "version": "1.0.0",
+  "description": "Helper that creates a jwt token",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Martín Dias",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^6.1.0",
+    "jsonwebtoken": "^8.4.0"
+  }
+}
