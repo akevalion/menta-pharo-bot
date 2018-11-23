@@ -68,7 +68,7 @@ MeDemo >> handleGithubEvent: eventString payload: payloadDictionary [
 		addComment: (payloadDictionary chainedAt: #(repository owner login))
 			project: (payloadDictionary chainedAt: #(repository name))
 			number: (payloadDictionary chainedAt: #(issue number))
-			data: { #body -> 'messageString' } asDictionary.
+			data: { #body -> 'messageStringggg' } asDictionary.
 
 ]
 
