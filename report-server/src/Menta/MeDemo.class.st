@@ -9,7 +9,7 @@ sshfs -o nonempty -p722 mdias@gate.dcc.uchile.cl:public/ ./public
 
 2. Evaluate in this image:
  
-Dotenv new path: '../../probot-server/.env' asFileReference; config.
+Dotenv new path: '../../.env' asFileReference; config.
 Teapot stopAll.
 MeDemo new 
 	publicFiles: (MePublicFiles new
@@ -26,7 +26,7 @@ curl localhost:3000/alive
 
 4. In dev environment, start smee client:
 
-cd probot-server/ && node start-smee.js
+cd ../../smee-client-util/ && node start-smee.js
 
 
 5. Trigger Github Hooks
