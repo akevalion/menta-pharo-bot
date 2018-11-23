@@ -1,9 +1,11 @@
-require('dotenv').config()
+require('dotenv').config({ path: '../.env' })
+const jwt = require('jsonwebtoken')
 
-var jwt = require('jsonwebtoken')
+const cert = process.env.PRIVATE_KEY
+const appId = process.env.APP_ID
 
-var cert = process.env.PRIVATE_KEY
+let now = Math.floor(Date.now() / 1000)
+let payload = { "iat": now, "exp": now + (10 * 60), "iss": appId }
 
-var token = jwt.sign({ foo: 'bar' }, cert, { algorithm: 'RS256'})
-
+let token = jwt.sign(payload, cert, { algorithm: 'RS256'})
 console.log(token)

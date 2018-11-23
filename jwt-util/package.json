@@ -1,7 +1,7 @@
 {
-  "name": "jwt-util",
+  "name": "menta-jwt-token-generator",
   "version": "1.0.0",
-  "description": "Helper that creates a jwt token",
+  "description": "Helper that creates the jwt token that Github API requires to authenticate a Github App.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
