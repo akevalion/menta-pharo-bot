@@ -39,14 +39,3 @@ MeGithubAppCredentials >> prepareRequest: aZnClient [
 "		headerAt: 'Accept' put: 'application/vnd.github.machine-man-preview+json';"
 		headerAt: 'User-Agent' put: 'menta-pharo-bot'
 ]
-
-{ #category : #options }
-MeGithubAppCredentials >> test [
-
-ZnClient new
-	url: 'https://api.github.com/app';
-	headerAt: 'Accept' 
-		put: 'application/vnd.github.machine-man-preview+json';
-	get.	
-
-]

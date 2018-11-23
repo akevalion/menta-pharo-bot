@@ -41,6 +41,37 @@ Class {
 	#category : #Menta
 }
 
+{ #category : #operations }
+MeDemo >> accessTokenFor: installationId [
+	| client payload |
+	client := ZnClient new
+		url: ('https://api.github.com/app/installations/{1}/access_tokens' format: {installationId});
+		headerAt: 'Accept' put: 'application/vnd.github.machine-man-preview+json';
+		yourself.
+	MeGithubAppCredentials new prepareRequest: client.
+	
+
+	payload := STON fromString: client post.
+	^ payload at: 'token'
+
+]
+
+{ #category : #handling }
+MeDemo >> createComment: aString payload: payloadDictionary [
+
+	| accessToken |
+	accessToken := self accessTokenFor: (payloadDictionary chainedAt: #(installation id)).
+	IceGitHubAPI new 
+		credentials: (MeGithubAppInstallationCredentials new accessToken: accessToken; yourself);
+		addComment: (payloadDictionary chainedAt: #(repository owner login))
+			project: (payloadDictionary chainedAt: #(repository name))
+			number: (payloadDictionary chainedAt: #(issue number))
+			data: { #body -> aString } asDictionary.
+
+
+
+]
+
 { #category : #handling }
 MeDemo >> exportCloudFor: aString at: pngPath [
 	| canvas |
@@ -61,23 +92,16 @@ MeDemo >> exportCloudFor: aString at: pngPath [
 { #category : #operations }
 MeDemo >> handleGithubEvent: eventString payload: payloadDictionary [
 
-	1halt.
-
-	IceGitHubAPI new 
-		credentials: MeGithubAppCredentials new;
-		addComment: (payloadDictionary chainedAt: #(repository owner login))
-			project: (payloadDictionary chainedAt: #(repository name))
-			number: (payloadDictionary chainedAt: #(issue number))
-			data: { #body -> 'messageStringggg' } asDictionary.
-
+	(eventString = 'issues' and: [ 'edited' = (payloadDictionary at: 'action') ])
+		ifTrue: [ self handleIssuesEdited: payloadDictionary ]
+		ifFalse: [ 1halt ]
 ]
 
 { #category : #handling }
-MeDemo >> handleIssuesEdited: req [
-	| payload oldText newText base fileNameForOld fileNameForNew |
-	payload := STON fromString: req entity string.
-	oldText := payload chainedAt: #(changes body from).
-	newText := payload chainedAt: #(issue body).
+MeDemo >> handleIssuesEdited: payloadDictionary [
+	| oldText newText base fileNameForOld fileNameForNew comment |
+	oldText := payloadDictionary chainedAt: #(changes body from).
+	newText := payloadDictionary chainedAt: #(issue body).
 	
 	base := UUID new asString36.
 	fileNameForOld := base, '-old.png'.
@@ -86,13 +110,14 @@ MeDemo >> handleIssuesEdited: req [
 	fileNameForNew := base, '-new.png'.
 	self exportCloudFor: newText at: (publicFiles pathFor: fileNameForNew).
 	
-	^'You edited a comment:
+	comment := 'You edited a comment:
 
 | Before | After |
 | ------ | ----- |
 | ![Before]({1}) | ![After]({2}) |
-' format: {publicFiles urlFor: fileNameForOld. publicFiles urlFor: fileNameForNew}
+' format: {publicFiles urlFor: fileNameForOld. publicFiles urlFor: fileNameForNew}.
 
+	self createComment: comment payload: payloadDictionary.
 ]
 
 { #category : #accessing }
