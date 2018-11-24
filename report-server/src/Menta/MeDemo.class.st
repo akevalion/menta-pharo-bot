@@ -11,10 +11,12 @@ sshfs -o nonempty -p722 mdias@gate.dcc.uchile.cl:public/ ./public
  
 Dotenv new path: '../../.env' asFileReference; config.
 Teapot stopAll.
-MeDemo new 
-	publicFiles: (MePublicFiles new
-		url: 'http://gate.dcc.uchile.cl:3000/public/';
-		path: (FileLocator imageDirectory parent parent / 'public') asPath;
+MeServer new 
+	handler: (MeDemo new
+		publicFiles: (MePublicFiles new
+			url: 'http://gate.dcc.uchile.cl:3000/public/';
+			path: (FileLocator imageDirectory parent parent / 'public') asPath;
+			yourself);
 		yourself);
 	start.
 
@@ -26,7 +28,7 @@ curl localhost:3000/alive
 
 4. In dev environment, start smee client:
 
-cd ../../smee-client-util/ && node start-smee.js
+node ../../smee-client-util/start-smee.js
 
 
 5. Trigger Github Hooks
@@ -34,11 +36,11 @@ cd ../../smee-client-util/ && node start-smee.js
 "
 Class {
 	#name : #MeDemo,
-	#superclass : #MeServer,
+	#superclass : #MeHandler,
 	#instVars : [
 		'publicFiles'
 	],
-	#category : #Menta
+	#category : #'Menta-Server'
 }
 
 { #category : #operations }
@@ -48,8 +50,7 @@ MeDemo >> accessTokenFor: installationId [
 		url: ('https://api.github.com/app/installations/{1}/access_tokens' format: {installationId});
 		headerAt: 'Accept' put: 'application/vnd.github.machine-man-preview+json';
 		yourself.
-	MeGithubAppCredentials new prepareRequest: client.
-	
+	(MeGithubAppCredentials withFreshJWT githubAppName: 'menta-pharo-bot'; yourself) applyTo: client.
 
 	payload := STON fromString: client post.
 	^ payload at: 'token'
@@ -61,14 +62,17 @@ MeDemo >> createComment: aString payload: payloadDictionary [
 
 	| accessToken |
 	accessToken := self accessTokenFor: (payloadDictionary chainedAt: #(installation id)).
-	IceGitHubAPI new 
-		credentials: (MeGithubAppInstallationCredentials new accessToken: accessToken; yourself);
-		addComment: (payloadDictionary chainedAt: #(repository owner login))
+
+	MeGithubAPI new 
+		credentials: (MeGithubAppInstallationCredentials new 
+			accessToken: accessToken; 
+			githubAppName: 'menta-pharo-bot';
+			yourself);
+		setRelativeUrlForCommentsOnOwner: (payloadDictionary chainedAt: #(repository owner login))
 			project: (payloadDictionary chainedAt: #(repository name))
-			number: (payloadDictionary chainedAt: #(issue number))
-			data: { #body -> aString } asDictionary.
-
-
+			number: (payloadDictionary chainedAt: #(issue number));
+		json: { #body -> aString } asDictionary;
+		post.
 
 ]
 
@@ -90,11 +94,11 @@ MeDemo >> exportCloudFor: aString at: pngPath [
 ]
 
 { #category : #operations }
-MeDemo >> handleGithubEvent: eventString payload: payloadDictionary [
+MeDemo >> handleEvent: eventString action: actionString payload: payloadDictionary [
 
-	(eventString = 'issues' and: [ 'edited' = (payloadDictionary at: 'action') ])
+	(eventString = 'issues' and: [ actionString = 'edited' ])
 		ifTrue: [ self handleIssuesEdited: payloadDictionary ]
-		ifFalse: [ 1halt ]
+		ifFalse: [ "1halt" ]
 ]
 
 { #category : #handling }

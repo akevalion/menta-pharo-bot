@@ -1,3 +1,6 @@
+"
+I help to understand that's the HTTP request that a ZnClient builds and sends.
+"
 Class {
 	#name : #MeLoggingStreamWrapper,
 	#superclass : #Object,

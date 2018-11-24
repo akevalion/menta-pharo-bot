@@ -1,41 +1,60 @@
+"
+Authenticating as a GitHub App lets you do a couple of things:
+
+    You can retrieve high-level management information about your GitHub App.
+    You can request access tokens for an installation of the app.
+
+To authenticate as a GitHub App, generate a private key in PEM format and download it to your local machine. You'll use this key to sign a JSON Web Token (JWT) and encode it using the RS256 algorithm. GitHub checks that the request is authenticated by verifying the token with the app's stored public key.
+
+Source: https://developer.github.com/apps/building-github-apps/authenticating-with-github-apps/#jwt-payload
+"
 Class {
 	#name : #MeGithubAppCredentials,
-	#superclass : #IceSshCredentials,
-	#category : #Menta
+	#superclass : #MeGithubAPICredentials,
+	#instVars : [
+		'jwtString'
+	],
+	#category : #'Menta-Github API'
 }
 
-{ #category : #tests }
-MeGithubAppCredentials class >> test [
-	<example>
-	| client |
-	client := ZnClient new
-		url: 'https://api.github.com/app';
-		headerAt: 'Accept' put: 'application/vnd.github.machine-man-preview+json';
-		yourself.
-	self new prepareRequest: client.
-	client get inspect
+{ #category : #'as yet unclassified' }
+MeGithubAppCredentials class >> freshJWT [
+	OSSUnixSubprocess new
+		shellCommand: 'node ../../jwt-token-generator/index.js';
+		redirectStdout;
+		runAndWaitOnExitDo: [ :command :outString | 
+			"Last character is lf, which breaks the HTTP request header." 
+			^ outString allButLast ]
+]
+
+{ #category : #'as yet unclassified' }
+MeGithubAppCredentials class >> withFreshJWT [
+	"Answer a new instance with a new JWT.
+	
+	Note: JWT are valid for 10 minutes. 
+	Source: https://developer.github.com/apps/building-github-apps/authenticating-with-github-apps/#authenticating-as-a-github-app
+	"
+
+	^ self new jwtString: self freshJWT
+]
+
+{ #category : #options }
+MeGithubAppCredentials >> applyTo: aZnClient [
+	"Prepare the headers of the HTTP client with the Github App authentication.
+	
+	Links:
+	https://developer.github.com/apps/building-github-apps/authenticating-with-github-apps/#jwt-payload"
+
+	super applyTo: aZnClient.
+	aZnClient headerAt: 'Authorization' put: 'Bearer ' , self jwtString
 ]
 
 { #category : #options }
 MeGithubAppCredentials >> jwtString [
-	OSSUnixSubprocess new
-		shellCommand: 'node ../../jwt-token-generator/index.js';
-		redirectStdout;
-		runAndWaitOnExitDo: [ :command :outString |
-			"Last character is lf, which breaks the HTTP request header."
-			^ outString allButLast ]
+	^ jwtString
 ]
 
 { #category : #options }
-MeGithubAppCredentials >> prepareRequest: aZnClient [
-	"Prepare the headers of the HTTP client with the Github App authentication.
-	
-	Links:
-	https://developer.github.com/apps/building-github-apps/authenticating-with-github-apps/#jwt-payload
-	https://developer.github.com/v3/#user-agent-required"
-	
-	aZnClient
-		headerAt: 'Authorization' put: 'Bearer ' , self jwtString;
-"		headerAt: 'Accept' put: 'application/vnd.github.machine-man-preview+json';"
-		headerAt: 'User-Agent' put: 'menta-pharo-bot'
+MeGithubAppCredentials >> jwtString: aString [
+	jwtString := aString
 ]

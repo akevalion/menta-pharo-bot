@@ -1,17 +1,22 @@
 "
-This is an HTTP server that can receive Github hooks.
+This is a HTTP server that can receive Github hooks, which is the entry point of a ""Github App"".
+
+See: https://developer.github.com/apps/
+
+
 "
 Class {
 	#name : #MeServer,
 	#superclass : #Object,
 	#instVars : [
 		'teapot',
-		'logger'
+		'logger',
+		'handler'
 	],
 	#classInstVars : [
 		'default'
 	],
-	#category : #Menta
+	#category : #'Menta-Server'
 }
 
 { #category : #operations }
@@ -44,17 +49,22 @@ MeServer >> handleBeforeRequest: aTeaRequest [
 ]
 
 { #category : #operations }
-MeServer >> handleGithubEvent: eventString payload: payloadDictionary [
-
-	^self subclassResponsibility
+MeServer >> handleGithubHook: aTeaRequest [
+	| eventString payloadDictionary actionString |
+	eventString := aTeaRequest headers at: 'X-Github-Event'.
+	payloadDictionary := STON fromString: aTeaRequest entity string.
+	actionString := payloadDictionary at: 'action'.
+	^ self handler handleEvent: eventString action: actionString payload: payloadDictionary
 ]
 
-{ #category : #operations }
-MeServer >> handleGithubHook: aTeaRequest [
-	| event payload |
-	event := aTeaRequest headers at: 'X-Github-Event'.
-	payload := STON fromString: aTeaRequest entity string.
-	^ self handleGithubEvent: event payload: payload
+{ #category : #accessing }
+MeServer >> handler [
+	^ handler
+]
+
+{ #category : #accessing }
+MeServer >> handler: anObject [
+	handler := anObject
 ]
 
 { #category : #operations }
@@ -67,14 +77,20 @@ MeServer >> initializeTeapot [
 		POST:   '*'              -> (Send message: #handleGithubHook: to: self);
 		GET:    '/alive'         -> (Send message: #handleAlive: to: self);
 		exception: MeError -> [ :ex :req | 
-			logger logError: ex.
-			TeaResponse badRequest body: { 'error' -> ex messageText } asDictionary ].
+			ex debug.
+			"logger logError: ex.
+			TeaResponse badRequest body: { 'error' -> ex messageText } asDictionary" ].
 
 ]
 
 { #category : #testing }
 MeServer >> isRunning [
 	^ teapot isNotNil and: [ teapot server isRunning ]
+]
+
+{ #category : #accessing }
+MeServer >> logger [
+	^ logger
 ]
 
 { #category : #accessing }

@@ -1,3 +1,6 @@
+"
+This is a simple logger that helps understanding a MeServer behavior.
+"
 Class {
 	#name : #MeLogger,
 	#superclass : #Object,
@@ -5,7 +8,7 @@ Class {
 		'writeStream',
 		'semaphore'
 	],
-	#category : #Menta
+	#category : #'Menta-Server'
 }
 
 { #category : #initialization }

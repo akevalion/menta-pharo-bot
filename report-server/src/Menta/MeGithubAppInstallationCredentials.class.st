@@ -9,24 +9,12 @@ Source: https://developer.github.com/apps/building-github-apps/authenticating-wi
 "
 Class {
 	#name : #MeGithubAppInstallationCredentials,
-	#superclass : #IceSshCredentials,
+	#superclass : #MeGithubAPICredentials,
 	#instVars : [
 		'accessToken'
 	],
-	#category : #Menta
+	#category : #'Menta-Github API'
 }
-
-{ #category : #tests }
-MeGithubAppInstallationCredentials class >> test [
-	<example>
-	| client |
-	client := ZnClient new
-		url: 'https://api.github.com/app';
-		headerAt: 'Accept' put: 'application/vnd.github.machine-man-preview+json';
-		yourself.
-	self new prepareRequest: client.
-	client get inspect
-]
 
 { #category : #accessing }
 MeGithubAppInstallationCredentials >> accessToken [
@@ -39,8 +27,7 @@ MeGithubAppInstallationCredentials >> accessToken: anObject [
 ]
 
 { #category : #options }
-MeGithubAppInstallationCredentials >> prepareRequest: aZnClient [
-	aZnClient
-		headerAt: 'Authorization' put: 'token ' , accessToken;
-		headerAt: 'User-Agent' put: 'menta-pharo-bot'
+MeGithubAppInstallationCredentials >> applyTo: aZnClient [
+	super applyTo: aZnClient.
+	aZnClient headerAt: 'Authorization' put: 'token ' , accessToken
 ]

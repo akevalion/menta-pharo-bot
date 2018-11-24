@@ -1,3 +1,11 @@
+"
+This are the settings for the public files server of this App.
+
+It includes: 
+* path: the server-internal path to the directory that is exposed to the web
+* url: the location of the exposed directory
+
+"
 Class {
 	#name : #MePublicFiles,
 	#superclass : #Object,
@@ -5,7 +13,7 @@ Class {
 		'path',
 		'url'
 	],
-	#category : #Menta
+	#category : #'Menta-Server'
 }
 
 { #category : #accessing }

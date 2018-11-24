@@ -1,3 +1,9 @@
+"
+This is a partial implementation of the nodejs ""dotenv"" package.
+
+Link:
+https://www.npmjs.com/package/dotenv
+"
 Class {
 	#name : #Dotenv,
 	#superclass : #Object,
