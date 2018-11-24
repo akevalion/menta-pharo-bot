@@ -13,9 +13,10 @@ BaselineOfMenta >> baseline: spec [
 			self
 				teapot: spec;
 				roassal2: spec;
-				osSubprocess: spec.
+				osSubprocess: spec;
+				rfb: spec.
 			
-			spec package: 'Menta' with: [ spec requires: #('Teapot' 'Roassal2' 'OSSubprocess') ].
+			spec package: 'Menta' with: [ spec requires: #('Teapot' 'Roassal2' 'OSSubprocess' 'RFB') ].
 			spec group: 'default' with: #('Menta')
 			]
 ]
@@ -26,6 +27,16 @@ BaselineOfMenta >> osSubprocess: spec [
 		baseline: 'OSSubprocess' 
 		with: [ spec repository: 'github://pharo-contributions/OSSubprocess:v1.0.1/repository' ]
 
+]
+
+{ #category : #baselines }
+BaselineOfMenta >> rfb: spec [
+	spec
+		project: 'RFB'
+		with: [ spec
+				className: #ConfigurationOfRFB;
+				versionString: #stable;
+				repository: 'http://smalltalkhub.com/mc/PharoExtras/RFB/main/' ]
 ]
 
 { #category : #baselines }
