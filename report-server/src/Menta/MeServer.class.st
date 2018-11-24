@@ -54,7 +54,13 @@ MeServer >> handleGithubHook: aTeaRequest [
 	eventString := aTeaRequest headers at: 'X-Github-Event'.
 	payloadDictionary := STON fromString: aTeaRequest entity string.
 	actionString := payloadDictionary at: 'action'.
-	^ self handler handleEvent: eventString action: actionString payload: payloadDictionary
+	^ [ self handler handleEvent: eventString action: actionString payload: payloadDictionary ]
+		on: Error
+		do: [ :anError |
+			"Very useful for handler development"
+			Smalltalk isHeadless 
+				ifTrue: [ anError signal ] 
+				ifFalse: [ anError debug ]  ]
 ]
 
 { #category : #accessing }
@@ -77,9 +83,8 @@ MeServer >> initializeTeapot [
 		POST:   '*'              -> (Send message: #handleGithubHook: to: self);
 		GET:    '/alive'         -> (Send message: #handleAlive: to: self);
 		exception: MeError -> [ :ex :req | 
-			ex debug.
-			"logger logError: ex.
-			TeaResponse badRequest body: { 'error' -> ex messageText } asDictionary" ].
+			logger logError: ex.
+			TeaResponse badRequest body: { 'error' -> ex messageText } asDictionary ].
 
 ]
 
