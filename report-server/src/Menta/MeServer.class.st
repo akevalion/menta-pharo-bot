@@ -38,14 +38,19 @@ MeServer >> handleBeforeRequest: aTeaRequest [
 MeServer >> handleGithubHook: aTeaRequest [
 	| eventString payloadDictionary actionString |
 
+	"Authenticate request"
+	MeGithubWebhookSignatureVerifier new
+		webhookSecret: (OSPlatform current environment asDictionary at: 'WEBHOOK_SECRET') asByteArray;
+		verify: aTeaRequest.
+		
 	"Check request and extract basic information"
-	self verifyGithubHookSignatureOf: aTeaRequest.
 	[ eventString := aTeaRequest headers at: 'X-Github-Event'.
 	payloadDictionary := STON fromString: aTeaRequest entity string.
 	actionString := payloadDictionary at: 'action' ]
 		on: Error
 		do: [ :anError | MeBadRequestError signal: anError messageText ].
 
+	"Handle"
 	[ self handler handleEvent: eventString action: actionString payload: payloadDictionary ]
 		on: Error
 		do: [ :anError | 
@@ -129,17 +134,7 @@ MeServer >> stop [
 
 { #category : #operations }
 MeServer >> verifyGithubHookSignatureOf: aTeaRequest [
-	| hash secret signatureThatsExpected signatureInRequest |
-	secret := (OSPlatform current environment asDictionary
-		at: 'WEBHOOK_SECRET') asByteArray.
-	signatureInRequest := aTeaRequest headers
-		at: 'X-Hub-Signature'
-		ifAbsent: [ '' ].
-	hash := (HMAC on: SHA1)
-		key: secret;
-		digestMessage: aTeaRequest contents.
-	signatureThatsExpected := 'sha1=' , hash hex.
-	signatureThatsExpected = signatureInRequest
-		ifFalse: [ MeBadRequestError signal: 'Wrong X-Hub-Signature' ].
-
+	MeGithubWebhookSignatureVerifier new
+		webhookSecret: (OSPlatform current environment asDictionary at: 'WEBHOOK_SECRET') asByteArray;
+		verify: aTeaRequest
 ]
