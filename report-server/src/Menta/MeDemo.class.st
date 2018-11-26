@@ -1,4 +1,6 @@
 "
+This is a demo handler. See superclass comment.
+
 How to Prepare in dev environment
 =================================
 
@@ -76,10 +78,9 @@ MeDemo >> createComment: aString payload: payloadDictionary [
 
 { #category : #handling }
 MeDemo >> exportCloudFor: aString at: pngPath [
-	| canvas |
-	canvas := (RTNameCloud new
-		addString: (' ' join: aString);
-		build) view canvas.
+	| view canvas |
+	view := (RTNameCloud new addString: (' ' join: aString); build) view.
+	canvas := view canvas.
 
 	(RTCanvasExporter canvas: canvas)
 		withoutFixedShapes;
@@ -92,10 +93,10 @@ MeDemo >> exportCloudFor: aString at: pngPath [
 ]
 
 { #category : #operations }
-MeDemo >> handleEvent: eventString action: actionString payload: payloadDictionary [
+MeDemo >> handle: aMeGithubWebhook [
 
-	(eventString = 'issues' and: [ actionString = 'edited' ])
-		ifTrue: [ self handleIssuesEdited: payloadDictionary ]
+	(aMeGithubWebhook event = 'issues' and: [ aMeGithubWebhook action = 'edited' ])
+		ifTrue: [ self handleIssuesEdited: aMeGithubWebhook payload ]
 		ifFalse: [ "1halt" ]
 ]
 

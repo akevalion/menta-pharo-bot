@@ -36,22 +36,15 @@ MeServer >> handleBeforeRequest: aTeaRequest [
 
 { #category : #operations }
 MeServer >> handleGithubHook: aTeaRequest [
-	| eventString payloadDictionary actionString |
+	| eventString payloadDictionary actionString webhook |
 
-	"Authenticate request"
-	MeGithubWebhookSignatureVerifier new
-		webhookSecret: (OSPlatform current environment asDictionary at: 'WEBHOOK_SECRET') asByteArray;
-		verify: aTeaRequest.
+	webhook := MeGithubWebhook newFrom: aTeaRequest.
+
+	"For security reasons, verify the request."
+	webhook verifySignatureWithSecret: (OSPlatform current environment asDictionary at: 'WEBHOOK_SECRET') asByteArray.
 		
-	"Check request and extract basic information"
-	[ eventString := aTeaRequest headers at: 'X-Github-Event'.
-	payloadDictionary := STON fromString: aTeaRequest entity string.
-	actionString := payloadDictionary at: 'action' ]
-		on: Error
-		do: [ :anError | MeBadRequestError signal: anError messageText ].
-
 	"Handle"
-	[ self handler handleEvent: eventString action: actionString payload: payloadDictionary ]
+	[ self handler handle: webhook ]
 		on: Error
 		do: [ :anError | 
 			"Very useful for development"
@@ -130,11 +123,4 @@ MeServer >> start [
 { #category : #operations }
 MeServer >> stop [
 	teapot stop
-]
-
-{ #category : #operations }
-MeServer >> verifyGithubHookSignatureOf: aTeaRequest [
-	MeGithubWebhookSignatureVerifier new
-		webhookSecret: (OSPlatform current environment asDictionary at: 'WEBHOOK_SECRET') asByteArray;
-		verify: aTeaRequest
 ]

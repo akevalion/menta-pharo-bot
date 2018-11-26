@@ -1,5 +1,5 @@
 "
-This is the abstract superclass of the handlers that subscribe to Github Hooks in a MeServer.
+This is the abstract superclass of the handlers that subscribe to Github Webhooks in a MeServer.
 "
 Class {
 	#name : #MeHandler,
@@ -8,7 +8,7 @@ Class {
 }
 
 { #category : #operations }
-MeHandler >> handleEvent: eventString action: actionString payload: payloadDictionary [
+MeHandler >> handle: aMeGithubWebhook [
 
 	^self subclassResponsibility
 ]
