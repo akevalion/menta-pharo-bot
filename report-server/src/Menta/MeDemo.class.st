@@ -1,13 +1,8 @@
 "
-How to Prepare
-==============
+How to Prepare in dev environment
+=================================
 
-1. Run in a terminal, in the root of the repository:
-
-sshfs -o nonempty -p722 mdias@gate.dcc.uchile.cl:public/ ./public
-
-
-2. Evaluate in this image:
+1. Evaluate in this image:
  
 Dotenv new path: '../../.env' asFileReference; config.
 Teapot stopAll.
@@ -21,17 +16,22 @@ MeServer new
 	start.
 
 
-3. Probe alive with:
+2. Probe alive with:
 
 curl localhost:3000/alive
 
 
-4. In dev environment, start smee client:
+3. Run in a terminal (from build/ directory):
+
+sshfs -o nonempty -p722 mdias@gate.dcc.uchile.cl:public/ ../../public
+
+
+4. Start smee client (from build/ directory):
 
 node ../../smee-client-util/start-smee.js
 
 
-5. Trigger Github Hooks
+5. Ready to listen to Github Hooks.
 
 "
 Class {
@@ -45,15 +45,13 @@ Class {
 
 { #category : #operations }
 MeDemo >> accessTokenFor: installationId [
-	| client payload |
-	client := ZnClient new
-		url: ('https://api.github.com/app/installations/{1}/access_tokens' format: {installationId});
-		headerAt: 'Accept' put: 'application/vnd.github.machine-man-preview+json';
-		yourself.
-	(MeGithubAppCredentials withFreshJWT githubAppName: 'menta-pharo-bot'; yourself) applyTo: client.
+	| payload |
+	payload := MeGithubAPI new
+		credentials: (MeGithubAppCredentials withFreshJWT githubAppName: 'menta-pharo-bot'; yourself);
+		setRelativeUrlForInstallationAccessToken: installationId;
+		post.
 
-	payload := STON fromString: client post.
-	^ payload at: 'token'
+	^ (STON fromString: payload) at: 'token'
 
 ]
 

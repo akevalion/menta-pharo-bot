@@ -21,17 +21,7 @@ Class {
 
 { #category : #operations }
 MeServer >> handleAfterRequest: aTeaRequest response: aResponse [
-	logger
-		logInfo:
-			(String
-				streamContents: [ :stream | 
-					aResponse statusLine printCodeAndReasonOn: stream.
-					aResponse hasEntity
-						ifTrue: [ 
-							stream space.
-							aResponse entity printContentTypeAndLengthOn: stream ] ]).
-	aResponse hasEntity
-		ifTrue: [ logger logTrace: aResponse entity contents ]
+	logger logInfo: (String streamContents: [ :stream | aResponse statusLine printCodeAndReasonOn: stream ])
 ]
 
 { #category : #handling }
@@ -41,26 +31,31 @@ MeServer >> handleAlive: aTeapotRequest [
 
 { #category : #operations }
 MeServer >> handleBeforeRequest: aTeaRequest [
-	self verifySignatureOf: aTeaRequest.
-	logger
-		logInfo:
-			(String
-				streamContents: [ :stream | aTeaRequest requestLine printMethodAndUriOn: stream ])
+	logger logInfo: (String streamContents: [ :stream | aTeaRequest requestLine printMethodAndUriOn: stream ])
 ]
 
 { #category : #operations }
 MeServer >> handleGithubHook: aTeaRequest [
 	| eventString payloadDictionary actionString |
-	eventString := aTeaRequest headers at: 'X-Github-Event'.
+
+	"Check request and extract basic information"
+	self verifyGithubHookSignatureOf: aTeaRequest.
+	[ eventString := aTeaRequest headers at: 'X-Github-Event'.
 	payloadDictionary := STON fromString: aTeaRequest entity string.
-	actionString := payloadDictionary at: 'action'.
-	^ [ self handler handleEvent: eventString action: actionString payload: payloadDictionary ]
+	actionString := payloadDictionary at: 'action' ]
 		on: Error
-		do: [ :anError |
-			"Very useful for handler development"
-			Smalltalk isHeadless 
-				ifTrue: [ anError signal ] 
-				ifFalse: [ anError debug ]  ]
+		do: [ :anError | MeBadRequestError signal: anError messageText ].
+
+	[ self handler handleEvent: eventString action: actionString payload: payloadDictionary ]
+		on: Error
+		do: [ :anError | 
+			"Very useful for development"
+			Smalltalk isHeadless
+				ifTrue: [ anError signal ]
+				ifFalse: [ anError debug ] ].
+
+	"Nothing particular to respond the Github Webhook"
+	^ ''
 ]
 
 { #category : #accessing }
@@ -77,12 +72,15 @@ MeServer >> handler: anObject [
 MeServer >> initializeTeapot [
 	logger := MeLogger new.
 	teapot := Teapot configure: { #port -> self port }.
+
 	teapot
-		before: '*'              -> (Send message: #handleBeforeRequest: to: self);
-		after:  '*'              -> (Send message: #handleAfterRequest:response: to: self);
-		POST:   '*'              -> (Send message: #handleGithubHook: to: self);
-		GET:    '/alive'         -> (Send message: #handleAlive: to: self);
-		exception: MeError -> [ :ex :req | 
+		before: '*'          -> (Send message: #handleBeforeRequest: to: self);
+		after:  '*'          -> (Send message: #handleAfterRequest:response: to: self);
+
+		GET:    '/alive'     -> (Send message: #handleAlive: to: self);
+		POST:   '/'          -> (Send message: #handleGithubHook: to: self);
+
+		exception: MeBadRequestError -> [ :ex :req | 
 			logger logError: ex.
 			TeaResponse badRequest body: { 'error' -> ex messageText } asDictionary ].
 
@@ -130,21 +128,18 @@ MeServer >> stop [
 ]
 
 { #category : #operations }
-MeServer >> verifySignatureOf: aTeaRequest [
-	| hash secret calculatedSignature signature payload |
-	
-	aTeaRequest contents ifNil: [ ^self. "for example, /alive stops here." ].
-	
+MeServer >> verifyGithubHookSignatureOf: aTeaRequest [
+	| hash secret signatureThatsExpected signatureInRequest |
 	secret := (OSPlatform current environment asDictionary
 		at: 'WEBHOOK_SECRET') asByteArray.
-	signature := aTeaRequest headers
+	signatureInRequest := aTeaRequest headers
 		at: 'X-Hub-Signature'
 		ifAbsent: [ '' ].
 	hash := (HMAC on: SHA1)
 		key: secret;
 		digestMessage: aTeaRequest contents.
-	calculatedSignature := 'sha1=' , hash hex.
-	calculatedSignature = signature
-		ifFalse: [ self error: 'wrong signature'	"TODO: What's the right answer?" ].
+	signatureThatsExpected := 'sha1=' , hash hex.
+	signatureThatsExpected = signatureInRequest
+		ifFalse: [ MeBadRequestError signal: 'Wrong X-Hub-Signature' ].
 
 ]

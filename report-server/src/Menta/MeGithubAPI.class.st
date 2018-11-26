@@ -86,6 +86,11 @@ MeGithubAPI >> setRelativeUrlForCommentsOnOwner: owner project: projectName numb
 ]
 
 { #category : #accessing }
+MeGithubAPI >> setRelativeUrlForInstallationAccessToken: installationId [
+	self relativeUrl: ('app/installations/{1}/access_tokens' format: {installationId})
+]
+
+{ #category : #accessing }
 MeGithubAPI >> url [
 	^ self baseUrl, self relativeUrl
 ]
