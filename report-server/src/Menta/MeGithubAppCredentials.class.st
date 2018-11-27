@@ -10,7 +10,7 @@ Source: https://developer.github.com/apps/building-github-apps/authenticating-wi
 "
 Class {
 	#name : #MeGithubAppCredentials,
-	#superclass : #MeGithubAPICredentials,
+	#superclass : #MeGithubAppAbstractCredentials,
 	#instVars : [
 		'jwtString'
 	],
@@ -28,14 +28,17 @@ MeGithubAppCredentials class >> freshJWT [
 ]
 
 { #category : #'as yet unclassified' }
-MeGithubAppCredentials class >> withFreshJWT [
+MeGithubAppCredentials class >> withFreshJWTGithubAppName: aString [
 	"Answer a new instance with a new JWT.
 	
 	Note: JWT are valid for 10 minutes. 
 	Source: https://developer.github.com/apps/building-github-apps/authenticating-with-github-apps/#authenticating-as-a-github-app
 	"
 
-	^ self new jwtString: self freshJWT
+	^ self new
+		jwtString: self freshJWT;
+		githubAppName: aString;
+		yourself
 ]
 
 { #category : #options }

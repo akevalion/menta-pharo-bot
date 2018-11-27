@@ -8,8 +8,16 @@ Class {
 		'writeStream',
 		'semaphore'
 	],
-	#category : #'Menta-Server'
+	#classInstVars : [
+		'current'
+	],
+	#category : #'Menta-Github App'
 }
+
+{ #category : #'instance creation' }
+MeLogger class >> current [
+	^ current ifNil: [ current := self new ]
+]
 
 { #category : #initialization }
 MeLogger >> initialize [

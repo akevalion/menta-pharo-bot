@@ -10,7 +10,7 @@ Class {
 		'teaRequest',
 		'payload'
 	],
-	#category : #'Menta-Server'
+	#category : #'Menta-Github App'
 }
 
 { #category : #'instance creation' }

@@ -1,55 +1,60 @@
 "
-This is a demo handler. See superclass comment.
+This is a demo Github App.
 
-How to Prepare in dev environment
-=================================
+First time
+==========
 
-1. Evaluate in this image:
- 
-Dotenv new path: '../../.env' asFileReference; config.
-Teapot stopAll.
-MeServer new 
-	handler: (MeDemo new
-		publicFiles: (MePublicFiles new
-			url: 'http://gate.dcc.uchile.cl:3000/public/';
-			path: (FileLocator imageDirectory parent parent / 'public') asPath;
-			yourself);
+Create a Github App, then create an instance with:
+
+| app |
+app := MeDemoApp new
+	publicFiles: (MePublicFiles new
+		url: 'http://gate.dcc.uchile.cl:3000/public/';
+		path: (FileLocator imageDirectory parent parent / 'public') asPath;
 		yourself);
-	start.
+	...
+	yourself);
+MeEasy write: app toStonFileAt: 'MyApp.ston' asFileReference.
+
+You can find the required data at:
+
+https://github.com/settings/apps/<the-github-app-name>
 
 
-2. Probe alive with:
+How to start in dev environment
+===============================
+
+1. Start a HTTP server with the app described in the file with:
+
+Teapot stopAll. (MeEasy readFromStonFileAt: '../../MeDemoApp.ston' asFileReference) start.
+
+
+2. Probe liveness with:
 
 curl localhost:3000/alive
 
 
 3. Run in a terminal (from build/ directory):
 
-sshfs -o nonempty -p722 mdias@gate.dcc.uchile.cl:public/ ../../public
-
-
-4. Start smee client (from build/ directory):
-
+sshfs -o nonempty -p722 mdias@gate.dcc.uchile.cl:public/ ~/public
 node ../../smee-client-util/start-smee.js
 
 
-5. Ready to listen to Github Hooks.
-
 "
 Class {
-	#name : #MeDemo,
-	#superclass : #MeHandler,
+	#name : #MeDemoApp,
+	#superclass : #MeGithubApp,
 	#instVars : [
 		'publicFiles'
 	],
-	#category : #'Menta-Server'
+	#category : #'Menta-Github App'
 }
 
 { #category : #operations }
-MeDemo >> accessTokenFor: installationId [
+MeDemoApp >> accessTokenFor: installationId [
 	| payload |
 	payload := MeGithubAPI new
-		credentials: (MeGithubAppCredentials withFreshJWT githubAppName: 'menta-pharo-bot'; yourself);
+		credentials: (MeGithubAppCredentials withFreshJWTGithubAppName: theName);
 		setRelativeUrlForInstallationAccessToken: installationId;
 		post.
 
@@ -58,7 +63,7 @@ MeDemo >> accessTokenFor: installationId [
 ]
 
 { #category : #handling }
-MeDemo >> createComment: aString payload: payloadDictionary [
+MeDemoApp >> createComment: aString payload: payloadDictionary [
 
 	| accessToken |
 	accessToken := self accessTokenFor: (payloadDictionary chainedAt: #(installation id)).
@@ -66,7 +71,7 @@ MeDemo >> createComment: aString payload: payloadDictionary [
 	MeGithubAPI new 
 		credentials: (MeGithubAppInstallationCredentials new 
 			accessToken: accessToken; 
-			githubAppName: 'menta-pharo-bot';
+			githubAppName: theName;
 			yourself);
 		setRelativeUrlForCommentsOnOwner: (payloadDictionary chainedAt: #(repository owner login))
 			project: (payloadDictionary chainedAt: #(repository name))
@@ -77,7 +82,7 @@ MeDemo >> createComment: aString payload: payloadDictionary [
 ]
 
 { #category : #handling }
-MeDemo >> exportCloudFor: aString at: pngPath [
+MeDemoApp >> exportCloudFor: aString at: pngPath [
 	| view canvas |
 	view := (RTNameCloud new addString: (' ' join: aString); build) view.
 	canvas := view canvas.
@@ -92,16 +97,8 @@ MeDemo >> exportCloudFor: aString at: pngPath [
 		export
 ]
 
-{ #category : #operations }
-MeDemo >> handle: aMeGithubWebhook [
-
-	(aMeGithubWebhook event = 'issues' and: [ aMeGithubWebhook action = 'edited' ])
-		ifTrue: [ self handleIssuesEdited: aMeGithubWebhook payload ]
-		ifFalse: [ "1halt" ]
-]
-
 { #category : #handling }
-MeDemo >> handleIssuesEdited: payloadDictionary [
+MeDemoApp >> handleIssuesEdited: payloadDictionary [
 	| oldText newText base fileNameForOld fileNameForNew comment |
 	oldText := payloadDictionary chainedAt: #(changes body from).
 	newText := payloadDictionary chainedAt: #(issue body).
@@ -123,12 +120,20 @@ MeDemo >> handleIssuesEdited: payloadDictionary [
 	self createComment: comment payload: payloadDictionary.
 ]
 
+{ #category : #operations }
+MeDemoApp >> handleWebhook: aMeGithubWebhook [
+
+	(aMeGithubWebhook event = 'issues' and: [ aMeGithubWebhook action = 'edited' ])
+		ifTrue: [ self handleIssuesEdited: aMeGithubWebhook payload ]
+		ifFalse: [ Halt if: [ Smalltalk isHeadless not ] ]
+]
+
 { #category : #accessing }
-MeDemo >> publicFiles [
+MeDemoApp >> publicFiles [
 	^ publicFiles
 ]
 
 { #category : #accessing }
-MeDemo >> publicFiles: anObject [
+MeDemoApp >> publicFiles: anObject [
 	publicFiles := anObject
 ]

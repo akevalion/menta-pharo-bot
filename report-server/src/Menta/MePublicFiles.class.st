@@ -13,7 +13,7 @@ Class {
 		'path',
 		'url'
 	],
-	#category : #'Menta-Server'
+	#category : #'Menta-Github App'
 }
 
 { #category : #accessing }

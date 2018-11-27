@@ -21,7 +21,7 @@ MeGithubAPI class >> example [
 	| client |
 	client := self new
 		relativeUrl: 'app';
-		credentials: (MeGithubAppCredentials withFreshJWT githubAppName: 'menta-pharo-bot'; yourself);
+		credentials: (MeGithubAppCredentials withFreshJWTGithubAppName: 'menta-pharo-bot');
 		newClient.
 	client get inspect
 ]

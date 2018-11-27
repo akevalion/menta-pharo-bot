@@ -9,7 +9,7 @@ Source: https://developer.github.com/apps/building-github-apps/authenticating-wi
 "
 Class {
 	#name : #MeGithubAppInstallationCredentials,
-	#superclass : #MeGithubAPICredentials,
+	#superclass : #MeGithubAppAbstractCredentials,
 	#instVars : [
 		'accessToken'
 	],

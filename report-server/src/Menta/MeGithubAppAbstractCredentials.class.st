@@ -2,7 +2,7 @@
 This class represents the abstract credentials to authorize actions in the Github API using a ZnClient.
 "
 Class {
-	#name : #MeGithubAPICredentials,
+	#name : #MeGithubAppAbstractCredentials,
 	#superclass : #Object,
 	#instVars : [
 		'githubAppName'
@@ -11,7 +11,7 @@ Class {
 }
 
 { #category : #operations }
-MeGithubAPICredentials >> applyTo: aZnClient [
+MeGithubAppAbstractCredentials >> applyTo: aZnClient [
 	"Prepare the headers of the HTTP client with the Github App authentication.
 	Subclasses should specialize.
 	
@@ -22,11 +22,11 @@ MeGithubAPICredentials >> applyTo: aZnClient [
 ]
 
 { #category : #operations }
-MeGithubAPICredentials >> githubAppName [
+MeGithubAppAbstractCredentials >> githubAppName [
 	^ githubAppName
 ]
 
 { #category : #operations }
-MeGithubAPICredentials >> githubAppName: aString [
+MeGithubAppAbstractCredentials >> githubAppName: aString [
 	githubAppName := aString
 ]
