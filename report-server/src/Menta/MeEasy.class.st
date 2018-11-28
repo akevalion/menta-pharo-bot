@@ -14,5 +14,5 @@ MeEasy class >> readFromStonFileAt: aFileReference [
 
 { #category : #convenience }
 MeEasy class >> write: aMeGithubApp toStonFileAt: aFileReference [
-	aFileReference writeStreamDo: [ :stream | STON put: self onStreamPretty: stream ]
+	aFileReference writeStreamDo: [ :stream | STON put: aMeGithubApp onStreamPretty: stream ]
 ]
