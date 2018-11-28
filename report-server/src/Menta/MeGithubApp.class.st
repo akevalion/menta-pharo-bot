@@ -102,7 +102,7 @@ MeGithubApp >> handleAfterRequest: aTeaRequest response: aResponse [
 
 { #category : #operations }
 MeGithubApp >> handleAlive: aTeapotRequest [
-	^ DateAndTime now asString
+	^ { 'now' -> DateAndTime now asString } asDictionary
 ]
 
 { #category : #operations }
