@@ -4,19 +4,12 @@ This is a demo Github App.
 First time
 ==========
 
-Create a Github App, then create an instance with:
+You should create your own Github App in the web and then fill this configuration file:
 
-| app |
-app := MeDemoApp new
-	publicFiles: (MePublicFiles new
-		url: 'http://gate.dcc.uchile.cl:3000/public/';
-		path: (FileLocator imageDirectory parent parent / 'public') asPath;
-		yourself);
-	...
-	yourself);
-MeEasy write: app toStonFileAt: 'MyApp.ston' asFileReference.
+Menta repositoryPath / 'MeDemoApp.ston'
 
-You can find the required data at:
+
+For that, you can find the required data at:
 
 https://github.com/settings/apps/<the-github-app-name>
 
@@ -26,7 +19,7 @@ How to start in dev environment
 
 1. Start a HTTP server with the app described in the file with:
 
-Teapot stopAll. (MeEasy readFromStonFileAt: '../../MeDemoApp.ston' asFileReference) start.
+Teapot stopAll. (MeEasy readFromStonFileAt: Menta repositoryPath / 'MeDemoApp.ston') start.
 
 
 2. Probe liveness with:
@@ -50,23 +43,28 @@ Class {
 	#category : #'Menta-Github App'
 }
 
-{ #category : #operations }
-MeDemoApp >> accessTokenFor: installationId [
-	| payload |
-	payload := MeGithubAPI new
-		credentials: (MeGithubAppCredentials withFreshJWTGithubAppName: theName);
-		setRelativeUrlForInstallationAccessToken: installationId;
-		post.
+{ #category : #examples }
+MeDemoApp class >> exampleFromFile [
+	<example>
+	
+	"
+	Teapot stopAll. 
+	"
+	^ (MeEasy readFromStonFileAt: self fileReferenceToExampleConfigurationFile) start; inspect.
+	
+]
 
-	^ (STON fromString: payload) at: 'token'
+{ #category : #examples }
+MeDemoApp class >> fileReferenceToExampleConfigurationFile [
 
+	^ (Menta repositoryPath / self instanceSide name, 'ston') asFileReference
 ]
 
 { #category : #handling }
 MeDemoApp >> createComment: aString payload: payloadDictionary [
 
 	| accessToken |
-	accessToken := self accessTokenFor: (payloadDictionary chainedAt: #(installation id)).
+	accessToken := self freshAccessTokenFor: (payloadDictionary chainedAt: #(installation id)).
 
 	MeGithubAPI new 
 		credentials: (MeGithubAppInstallationCredentials new 

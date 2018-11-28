@@ -1,6 +1,28 @@
 "
 My subclasses are Github Apps that operate with the Github API.
 
+For new subclasses
+==================
+
+Create a Github App in the web browser, then use the generated data to create an instance with:
+
+| app |
+app := MyNewApp new
+	id: 12345;
+	theName: 'my-new-app';
+	...
+	yourself.
+
+You can find the required data at:
+
+https://github.com/settings/apps/<the-github-app-name>
+
+
+Now, you may write the instance to disk with:	
+	
+MeEasy write: app toStonFileAt: 'MyNewApp.ston' asFileReference.
+
+
 "
 Class {
 	#name : #MeGithubApp,
@@ -14,6 +36,52 @@ Class {
 	],
 	#category : #'Menta-Github App'
 }
+
+{ #category : #accessing }
+MeGithubApp >> freshAccessTokenFor: installationId [
+	"Answer a (not expired) access token for the specified installation id.
+	
+	Note: These tokens are valid for 60 minutes.
+	"
+	
+	| payload |
+	payload := MeGithubAPI new
+		credentials: self freshGithubAppCredentials;
+		setRelativeUrlForInstallationAccessToken: installationId;
+		post.
+
+	self flag: #todo. "cache!"
+	^ (STON fromString: payload) at: 'token'
+
+]
+
+{ #category : #accessing }
+MeGithubApp >> freshGithubAppCredentials [
+	"Answer a new instance with a new JWT.
+	
+	Note: JWT are valid for 10 minutes. 
+	Source: https://developer.github.com/apps/building-github-apps/authenticating-with-github-apps/#authenticating-as-a-github-app
+	"
+	self flag: #todo. "cache!"
+
+	^ MeGithubAppCredentials new
+		jwtString: self freshJWT;
+		githubAppName: theName;
+		yourself
+	
+]
+
+{ #category : #accessing }
+MeGithubApp >> freshJWT [
+	self flag: #todo. "cache!"
+
+	OSSUnixSubprocess new
+		shellCommand: ('node ../../jwt-token-generator/index.js {1} {2}' format: { id. privateKeyPathAsString });
+		redirectStdout;
+		runAndWaitOnExitDo: [ :command :outString | 
+			"Last character is lf, which breaks the HTTP request header." 
+			^ outString allButLast ]
+]
 
 { #category : #operations }
 MeGithubApp >> handleAfterRequest: aTeaRequest response: aResponse [

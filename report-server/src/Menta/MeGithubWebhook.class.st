@@ -36,7 +36,7 @@ MeGithubWebhook >> initializeFrom: aTeaRequest [
 	teaRequest := aTeaRequest
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 MeGithubWebhook >> payload [
 	^ payload ifNil: [ payload := STON fromString: teaRequest entity string ]
 ]

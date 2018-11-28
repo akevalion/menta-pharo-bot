@@ -12,10 +12,9 @@ Class {
 
 { #category : #operations }
 MeGithubAppAbstractCredentials >> applyTo: aZnClient [
-	"Prepare the headers of the HTTP client with the Github App authentication.
-	Subclasses should specialize.
+	"Prepare a HTTP request (in the ZnClient) to authenticate as a Github App. Subclasses specialize.
 	
-	Links:
+	Source:
 	https://developer.github.com/v3/#user-agent-required"
 
 	aZnClient headerAt: 'User-Agent' put: self githubAppName

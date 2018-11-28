@@ -28,6 +28,12 @@ MeGithubAppInstallationCredentials >> accessToken: anObject [
 
 { #category : #options }
 MeGithubAppInstallationCredentials >> applyTo: aZnClient [
+	"Prepare a HTTP request (in the ZnClient) to authenticate as a Github App Installation.
+	
+	Source:
+	https://developer.github.com/apps/building-github-apps/authenticating-with-github-apps/#authenticating-as-an-installation
+	"
+
 	super applyTo: aZnClient.
 	aZnClient headerAt: 'Authorization' put: 'token ' , accessToken
 ]

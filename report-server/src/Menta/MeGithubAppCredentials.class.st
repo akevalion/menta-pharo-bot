@@ -17,36 +17,13 @@ Class {
 	#category : #'Menta-Github API'
 }
 
-{ #category : #'as yet unclassified' }
-MeGithubAppCredentials class >> freshJWT [
-	OSSUnixSubprocess new
-		shellCommand: 'node ../../jwt-token-generator/index.js';
-		redirectStdout;
-		runAndWaitOnExitDo: [ :command :outString | 
-			"Last character is lf, which breaks the HTTP request header." 
-			^ outString allButLast ]
-]
-
-{ #category : #'as yet unclassified' }
-MeGithubAppCredentials class >> withFreshJWTGithubAppName: aString [
-	"Answer a new instance with a new JWT.
-	
-	Note: JWT are valid for 10 minutes. 
-	Source: https://developer.github.com/apps/building-github-apps/authenticating-with-github-apps/#authenticating-as-a-github-app
-	"
-
-	^ self new
-		jwtString: self freshJWT;
-		githubAppName: aString;
-		yourself
-]
-
 { #category : #options }
 MeGithubAppCredentials >> applyTo: aZnClient [
-	"Prepare the headers of the HTTP client with the Github App authentication.
+	"Prepare a HTTP request (in the ZnClient) to authenticate as a Github App.
 	
-	Links:
-	https://developer.github.com/apps/building-github-apps/authenticating-with-github-apps/#jwt-payload"
+	Source:
+	https://developer.github.com/apps/building-github-apps/authenticating-with-github-apps/#jwt-payload
+	"
 
 	super applyTo: aZnClient.
 	aZnClient headerAt: 'Authorization' put: 'Bearer ' , self jwtString

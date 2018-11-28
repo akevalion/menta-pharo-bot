@@ -16,14 +16,15 @@ Class {
 }
 
 { #category : #tests }
-MeGithubAPI class >> example [
+MeGithubAPI class >> exampleGetApp [
 	<example>
+	
 	| client |
 	client := self new
 		relativeUrl: 'app';
-		credentials: (MeGithubAppCredentials withFreshJWTGithubAppName: 'menta-pharo-bot');
+		credentials: (MeDemoApp exampleFromFile freshGithubAppCredentials);
 		newClient.
-	client get inspect
+	^ STON fromString: client get
 ]
 
 { #category : #accessing }
