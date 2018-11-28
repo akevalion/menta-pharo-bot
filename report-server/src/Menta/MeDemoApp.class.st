@@ -27,11 +27,10 @@ Teapot stopAll. (MeEasy readFromStonFileAt: Menta repositoryPath / 'MeDemoApp.st
 curl localhost:3000/alive
 
 
-3. Run in a terminal (from build/ directory):
+3. TODO: Run in a terminal (from build/ directory):
 
 sshfs -o nonempty -p722 mdias@gate.dcc.uchile.cl:public/ ~/public
-node ../../smee-client-util/start-smee.js
-
+node ../../../smee-client-util/start-smee.js
 
 "
 Class {
