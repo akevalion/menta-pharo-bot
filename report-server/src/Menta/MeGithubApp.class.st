@@ -37,6 +37,18 @@ Class {
 	#category : #'Menta-Github App'
 }
 
+{ #category : #server }
+MeGithubApp >> convertedToJson: object [
+	^ String
+		streamContents: [ :stream | 
+			(NeoJSONWriter on: stream)
+				writeNil: true;
+"				for: VOTestDog do: [ :mapping |
+					mapping mapInstVars: #(name) ];
+				mapAllInstVarsFor: VOTestOwner;"
+				nextPut: object ]
+]
+
 { #category : #accessing }
 MeGithubApp >> freshAccessTokenFor: installationId [
 	"Answer a (not expired) access token for the specified installation id.
@@ -88,7 +100,7 @@ MeGithubApp >> handleAfterRequest: aTeaRequest response: aResponse [
 	MeLogger current logInfo: (String streamContents: [ :stream | aResponse statusLine printCodeAndReasonOn: stream ])
 ]
 
-{ #category : #handling }
+{ #category : #operations }
 MeGithubApp >> handleAlive: aTeapotRequest [
 	^ DateAndTime now asString
 ]
@@ -104,16 +116,10 @@ MeGithubApp >> handleGithubHook: aTeaRequest [
 	webhook := MeGithubWebhook newFrom: aTeaRequest.
 
 	"For security reasons, verify the request."
-	webhook verifySignatureWithSecret: (OSPlatform current environment asDictionary at: 'WEBHOOK_SECRET') asByteArray.
+	webhook verifySignatureWithSecret: webhookSecret.
 		
-	"Handle"
-	[ self handleWebhook: webhook ]
-		on: Error
-		do: [ :anError | 
-			"Very useful for development"
-			Smalltalk isHeadless
-				ifTrue: [ anError signal ]
-				ifFalse: [ anError debug ] ].
+	"Handle by subclass"
+	self handleWebhook: webhook.
 
 	"Nothing particular to respond the Github Webhook"
 	^ ''
@@ -133,6 +139,47 @@ MeGithubApp >> id [
 { #category : #accessing }
 MeGithubApp >> id: anObject [
 	id := anObject
+]
+
+{ #category : #server }
+MeGithubApp >> newTeapot [
+	| teapot |
+	teapot := Teapot configure: { 
+		#port -> portNumber.
+		#defaultOutput -> [ :resp :req | 
+			| entity |
+			entity := ZnStringEntity 
+				with: (self convertedToJson: resp body)
+				type: (ZnMimeType applicationJson charSet: resp charSet; yourself).
+			TeaOutput 
+				znEntity: entity
+				code: resp code 
+				headers: resp headers ].
+	}.
+
+
+	teapot
+		before: '*'          -> (Send message: #handleBeforeRequest: to: self);
+		after:  '*'          -> (Send message: #handleAfterRequest:response: to: self);
+
+		GET:    '/alive'     -> (Send message: #handleAlive: to: self);
+		POST:   '/'          -> (Send message: #handleGithubHook: to: self);
+
+		exception: MeBadRequestError -> [ :error :request | 
+			MeLogger current logError: error.
+			TeaResponse badRequest
+				body: { 'error' -> error messageText } asDictionary;
+				yourself ];
+		
+		exception: Error -> [ :error :request |
+			MeLogger current logError: error.
+			"Very useful for development"
+			Smalltalk isHeadless ifFalse: [ error debug ].
+			TeaResponse serverError
+				body: { 'error' -> error messageText } asDictionary;
+				yourself ].
+
+	^ teapot start
 ]
 
 { #category : #accessing }
@@ -155,23 +202,9 @@ MeGithubApp >> privateKeyPathAsString: aString [
 	privateKeyPathAsString := aString
 ]
 
-{ #category : #operations }
+{ #category : #server }
 MeGithubApp >> start [
-	| teapot |
-	teapot := Teapot configure: { #port -> portNumber }.
-
-	teapot
-		before: '*'          -> (Send message: #handleBeforeRequest: to: self);
-		after:  '*'          -> (Send message: #handleAfterRequest:response: to: self);
-
-		GET:    '/alive'     -> (Send message: #handleAlive: to: self);
-		POST:   '/'          -> (Send message: #handleGithubHook: to: self);
-
-		exception: MeBadRequestError -> [ :ex :req | 
-			MeLogger current logError: ex.
-			TeaResponse badRequest body: { 'error' -> ex messageText } asDictionary ].
-
-	^ teapot start
+	^ self newTeapot start
 ]
 
 { #category : #accessing }
