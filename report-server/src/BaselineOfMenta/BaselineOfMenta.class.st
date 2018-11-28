@@ -48,11 +48,5 @@ BaselineOfMenta >> roassal2: spec [
 
 { #category : #baselines }
 BaselineOfMenta >> teapot: spec [
-	spec
-		project: 'Teapot'
-		with: [ 
-			spec
-				className: #ConfigurationOfTeapot;
-				versionString: '2.5';
-				repository: 'http://smalltalkhub.com/mc/zeroflag/Teapot/main' ]
+	spec project: 'Teapot' with: [ spec repository: 'github://zeroflag/Teapot:v2.6.0/source' ]
 ]
