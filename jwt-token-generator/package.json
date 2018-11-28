@@ -9,7 +9,7 @@
   "author": "Martín Dias",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^6.1.0",
-    "jsonwebtoken": "^8.4.0"
+    "jsonwebtoken": "^8.4.0",
+    "yargs": "^12.0.5"
   }
 }
