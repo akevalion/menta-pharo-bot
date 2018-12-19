@@ -88,7 +88,7 @@ MeGithubApp >> freshJWT [
 	self flag: #todo. "cache!"
 
 	OSSUnixSubprocess new
-		shellCommand: ('node ../../jwt-token-generator/index.js {1} {2}' format: { id. privateKeyPathAsString });
+		shellCommand: ('node ../../jwt-generator/index.js {1} {2}' format: { id. privateKeyPathAsString });
 		redirectStdout;
 		runAndWaitOnExitDo: [ :command :outString | 
 			"Last character is lf, which breaks the HTTP request header." 

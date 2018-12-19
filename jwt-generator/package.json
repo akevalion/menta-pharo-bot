@@ -1,5 +1,5 @@
 {
-  "name": "menta-jwt-token-generator",
+  "name": "menta-jwt-generator",
   "version": "1.0.0",
   "description": "Helper that creates the jwt token that Github API requires to authenticate a Github App.",
   "main": "index.js",
