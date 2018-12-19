@@ -7,7 +7,7 @@ cd report-server
 ./build.sh
 cd ..
 
-cd probot-server
+cd jwt-generator
 npm install
 cd ..
 
