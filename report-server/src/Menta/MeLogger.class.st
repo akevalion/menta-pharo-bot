@@ -14,23 +14,25 @@ Class {
 	#category : #'Menta-Github App'
 }
 
-{ #category : #'instance creation' }
+{ #category : #accessing }
 MeLogger class >> current [
 	^ current ifNil: [ current := self new ]
 ]
 
+{ #category : #accessing }
+MeLogger class >> reset [
+	current := nil
+]
+
 { #category : #initialization }
 MeLogger >> initialize [
-
 	super initialize.
-
-	semaphore := Semaphore forMutualExclusion.
-	writeStream := Stdio stdout.
+	semaphore := Semaphore forMutualExclusion
 ]
 
 { #category : #logging }
 MeLogger >> log: aString kind: kind [
-	writeStream
+	self writeStream
 		print: DateAndTime now;
 		nextPut: Character space;
 		nextPut: Character tab;
@@ -63,7 +65,7 @@ MeLogger >> semaphore [
 
 { #category : #accessing }
 MeLogger >> writeStream [
-	^ writeStream
+	^ writeStream ifNil: [ Stdio stdout ]
 ]
 
 { #category : #accessing }
