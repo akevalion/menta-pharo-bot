@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ./build/pharo build/Pharo.image eval --no-quit "\
+UIManager default: NonInteractiveUIManager new.\
 (MeEasy readFromStonFileAt: Menta repositoryPath / 'MeDemoApp.ston') start.\
 RFBServer current\
     initializePreferences;\
