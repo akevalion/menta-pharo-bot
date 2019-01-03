@@ -24,7 +24,7 @@ Class {
 	#name : #MeDemoApp,
 	#superclass : #MeGithubApp,
 	#instVars : [
-		'publicFiles'
+		'filePublisher'
 	],
 	#category : #'Menta-Github App'
 }
@@ -73,6 +73,16 @@ MeDemoApp >> exportCloudFor: aString at: aFileReference [
 		export
 ]
 
+{ #category : #accessing }
+MeDemoApp >> filePublisher [
+	^ filePublisher
+]
+
+{ #category : #accessing }
+MeDemoApp >> filePublisher: aMeFilePublisher [
+	filePublisher := aMeFilePublisher
+]
+
 { #category : #handling }
 MeDemoApp >> handleIssuesEdited: payloadDictionary [
 	| oldText newText base comment urlForOld urlForNew |
@@ -80,10 +90,10 @@ MeDemoApp >> handleIssuesEdited: payloadDictionary [
 	newText := payloadDictionary chainedAt: #(issue body).
 	
 	base := UUID new asString36.
-	urlForOld := publicFiles
+	urlForOld := filePublisher
 		publishAtUniqueFileName: base, '-old.png'
 		do: [:aFileReference | self exportCloudFor: oldText at: aFileReference ].
-	urlForNew := publicFiles
+	urlForNew := filePublisher
 		publishAtUniqueFileName: base, '-new.png'
 		do: [:aFileReference | self exportCloudFor: newText at: aFileReference ].
 	
@@ -103,14 +113,4 @@ MeDemoApp >> handleWebhook: aMeGithubWebhook [
 	(aMeGithubWebhook event = 'issues' and: [ aMeGithubWebhook action = 'edited' ])
 		ifTrue: [ self handleIssuesEdited: aMeGithubWebhook payload ]
 		ifFalse: [ Halt if: [ Smalltalk isHeadless not ] ]
-]
-
-{ #category : #accessing }
-MeDemoApp >> publicFiles [
-	^ publicFiles
-]
-
-{ #category : #accessing }
-MeDemoApp >> publicFiles: anObject [
-	publicFiles := anObject
 ]
