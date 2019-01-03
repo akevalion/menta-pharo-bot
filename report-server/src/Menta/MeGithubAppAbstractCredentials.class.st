@@ -5,7 +5,7 @@ Class {
 	#name : #MeGithubAppAbstractCredentials,
 	#superclass : #Object,
 	#instVars : [
-		'githubAppName'
+		'githubApp'
 	],
 	#category : #'Menta-Github API'
 }
@@ -21,11 +21,20 @@ MeGithubAppAbstractCredentials >> applyTo: aZnClient [
 ]
 
 { #category : #operations }
-MeGithubAppAbstractCredentials >> githubAppName [
-	^ githubAppName
+MeGithubAppAbstractCredentials >> ensureFresh [
 ]
 
-{ #category : #operations }
-MeGithubAppAbstractCredentials >> githubAppName: aString [
-	githubAppName := aString
+{ #category : #accessing }
+MeGithubAppAbstractCredentials >> githubApp [
+	^ githubApp
+]
+
+{ #category : #accessing }
+MeGithubAppAbstractCredentials >> githubApp: aMeGithubApp [
+	githubApp := aMeGithubApp
+]
+
+{ #category : #accessing }
+MeGithubAppAbstractCredentials >> githubAppName [
+	^ githubApp theName
 ]

@@ -11,7 +11,9 @@ Class {
 	#name : #MeGithubAppInstallationCredentials,
 	#superclass : #MeGithubAppAbstractCredentials,
 	#instVars : [
-		'accessToken'
+		'accessToken',
+		'accessTokenExpireTime',
+		'installationId'
 	],
 	#category : #'Menta-Github API'
 }
@@ -22,8 +24,10 @@ MeGithubAppInstallationCredentials >> accessToken [
 ]
 
 { #category : #accessing }
-MeGithubAppInstallationCredentials >> accessToken: anObject [
-	accessToken := anObject
+MeGithubAppInstallationCredentials >> accessTokenDuration [
+	"By definition, GitHub app's installation access tokens are valid for 60 minutes."
+
+	^ 60 minutes
 ]
 
 { #category : #options }
@@ -36,4 +40,36 @@ MeGithubAppInstallationCredentials >> applyTo: aZnClient [
 
 	super applyTo: aZnClient.
 	aZnClient headerAt: 'Authorization' put: 'token ' , accessToken
+]
+
+{ #category : #operations }
+MeGithubAppInstallationCredentials >> ensureFresh [
+	self shouldRefreshAccessToken
+		ifTrue: [ self refreshAccessToken ]
+]
+
+{ #category : #operations }
+MeGithubAppInstallationCredentials >> newAccessToken [
+	"Answer a (not expired) access token for my installation id."
+	
+	| payload |
+	payload := MeGithubAPI new
+		credentials: githubApp freshGithubAppCredentials;
+		setRelativeUrlForInstallationAccessToken: installationId;
+		post.
+	^ (STON fromString: payload) at: 'token'
+
+]
+
+{ #category : #operations }
+MeGithubAppInstallationCredentials >> refreshAccessToken [
+	accessTokenExpireTime := DateAndTime now + self accessTokenDuration.
+	accessToken := self newAccessToken
+]
+
+{ #category : #accessing }
+MeGithubAppInstallationCredentials >> shouldRefreshAccessToken [
+	"Tells if the accessTokenExpireTime is valid."
+
+	^ accessToken isNil or: [ DateAndTime now > accessTokenExpireTime ]
 ]

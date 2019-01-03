@@ -32,7 +32,9 @@ Class {
 		'theName',
 		'webhookSecret',
 		'privateKeyPathAsString',
-		'portNumber'
+		'portNumber',
+		'appCredentials',
+		'installationCredentialsCache'
 	],
 	#category : #'Menta-Github App'
 }
@@ -50,53 +52,14 @@ MeGithubApp >> convertedToJson: object [
 ]
 
 { #category : #accessing }
-MeGithubApp >> freshAccessTokenFor: installationId [
-	"Answer a (not expired) access token for the specified installation id.
-	
-	Note: These tokens are valid for 60 minutes.
-	"
-	
-	| payload |
-	payload := MeGithubAPI new
-		credentials: self freshGithubAppCredentials;
-		setRelativeUrlForInstallationAccessToken: installationId;
-		post.
-
-	self flag: #todo. "cache!"
-	^ (STON fromString: payload) at: 'token'
-
-]
-
-{ #category : #accessing }
 MeGithubApp >> freshGithubAppCredentials [
-	"Answer a new instance with a new JWT.
-	
-	Note: JWT are valid for 10 minutes. 
-	Source: https://developer.github.com/apps/building-github-apps/authenticating-with-github-apps/#authenticating-as-a-github-app
-	"
-	self flag: #todo. "cache!"
-
-	^ MeGithubAppCredentials new
-		jwtString: self freshJWT;
-		githubAppName: theName;
+	appCredentials ifNil: [ 
+		appCredentials := MeGithubAppCredentials new
+			githubApp: self;
+			yourself ].
+	^ appCredentials
+		ensureFresh;
 		yourself
-	
-]
-
-{ #category : #accessing }
-MeGithubApp >> freshJWT [
-	self flag: #todo. "cache!"
-
-	OSSUnixSubprocess new
-		shellCommand: ('node {1}/jwt-generator/index.js {2} {3}' 
-			format: {
-				Menta repositoryPath pathString.
-				id. 
-				privateKeyPathAsString });
-		redirectStdout;
-		runAndWaitOnExitDo: [ :command :outString | 
-			"Last character is lf, which breaks the HTTP request header." 
-			^ outString allButLast ]
 ]
 
 { #category : #operations }

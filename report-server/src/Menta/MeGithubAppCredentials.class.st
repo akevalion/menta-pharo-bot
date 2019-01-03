@@ -12,7 +12,8 @@ Class {
 	#name : #MeGithubAppCredentials,
 	#superclass : #MeGithubAppAbstractCredentials,
 	#instVars : [
-		'jwtString'
+		'jwtString',
+		'jwtExpireTime'
 	],
 	#category : #'Menta-Github API'
 }
@@ -30,11 +31,46 @@ MeGithubAppCredentials >> applyTo: aZnClient [
 ]
 
 { #category : #options }
+MeGithubAppCredentials >> ensureFresh [
+	self shouldRefreshJwt
+		ifTrue: [ self refreshJwt ]
+]
+
+{ #category : #options }
+MeGithubAppCredentials >> jwtDuration [
+	"By definition, JWT are valid for 10 minutes. Source: https://developer.github.com/apps/building-github-apps/authenticating-with-github-apps/#authenticating-as-a-github-app"
+
+	^ 10 minutes
+]
+
+{ #category : #options }
 MeGithubAppCredentials >> jwtString [
 	^ jwtString
 ]
 
 { #category : #options }
-MeGithubAppCredentials >> jwtString: aString [
-	jwtString := aString
+MeGithubAppCredentials >> newJwtString [
+	OSSUnixSubprocess new
+		shellCommand: ('node {1}/jwt-generator/index.js {2} {3}' 
+			format: {
+				Menta repositoryPath pathString.
+				githubApp id. 
+				githubApp privateKeyPathAsString });
+		redirectStdout;
+		runAndWaitOnExitDo: [ :command :outString | 
+			"Last character is lf, which breaks the HTTP request header." 
+			^ outString allButLast ]
+]
+
+{ #category : #options }
+MeGithubAppCredentials >> refreshJwt [
+	jwtExpireTime := DateAndTime now + self jwtDuration.
+	jwtString := self newJwtString
+]
+
+{ #category : #options }
+MeGithubAppCredentials >> shouldRefreshJwt [
+	"Tells if the jwtString is valid."
+
+	^ jwtString isNil or: [ DateAndTime now > jwtExpireTime ]
 ]

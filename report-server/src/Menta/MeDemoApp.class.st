@@ -61,21 +61,13 @@ MeDemoApp class >> fileReferenceToExampleConfigurationFile [
 
 { #category : #handling }
 MeDemoApp >> createComment: aString payload: payloadDictionary [
-
-	| accessToken |
-	accessToken := self freshAccessTokenFor: (payloadDictionary chainedAt: #(installation id)).
-
-	MeGithubAPI new 
-		credentials: (MeGithubAppInstallationCredentials new 
-			accessToken: accessToken; 
-			githubAppName: theName;
-			yourself);
+	MeGithubAPI new
+		credentials: (self freshInstallationCredentialsFor: (payloadDictionary chainedAt: #(installation id)));
 		setRelativeUrlForCommentsOnOwner: (payloadDictionary chainedAt: #(repository owner login))
 			project: (payloadDictionary chainedAt: #(repository name))
 			number: (payloadDictionary chainedAt: #(issue number));
 		json: { #body -> aString } asDictionary;
-		post.
-
+		post
 ]
 
 { #category : #handling }
