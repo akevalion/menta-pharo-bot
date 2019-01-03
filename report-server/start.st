@@ -1,5 +1,14 @@
-UIManager default: NonInteractiveUIManager new.
 (MeEasy readFromStonFileAt: Menta repositoryPath / 'MeDemoApp.ston') start.
+
+"VNC support"
+
+UIManager default: NonInteractiveUIManager new.
+
+Workspace openContents: '
+UIManager default: MorphicUIManager new.
+UIManager default: NonInteractiveUIManager new.
+'.
+
 RFBServer current
     initializePreferences;
     allowEmptyPasswords: false;
