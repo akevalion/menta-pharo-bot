@@ -1,8 +1,8 @@
 "
 This is a demo Github App.
 
-First time
-==========
+Setup
+=====
 
 You should create your own Github App in the web and then fill this configuration file:
 
@@ -14,23 +14,10 @@ For that, you can find the required data at:
 https://github.com/settings/apps/<the-github-app-name>
 
 
-How to start in dev environment
-===============================
-
-1. Start a HTTP server with the app described in the file with:
+Start HTTP server
+=================
 
 Teapot stopAll. (MeEasy readFromStonFileAt: Menta repositoryPath / 'MeDemoApp.ston') start.
-
-
-2. Probe liveness with:
-
-curl localhost:3000/alive
-
-
-3. TODO: Run in a terminal (from build/ directory):
-
-sshfs -o nonempty -p722 mdias@gate.dcc.uchile.cl:public/ ~/public
-node ../../../smee-client-util/start-smee.js
 
 "
 Class {
@@ -71,7 +58,7 @@ MeDemoApp >> createComment: aString payload: payloadDictionary [
 ]
 
 { #category : #handling }
-MeDemoApp >> exportCloudFor: aString at: pngPath [
+MeDemoApp >> exportCloudFor: aString at: aFileReference [
 	| view canvas |
 	view := (RTNameCloud new addString: (' ' join: aString); build) view.
 	canvas := view canvas.
@@ -82,29 +69,30 @@ MeDemoApp >> exportCloudFor: aString at: pngPath [
 		defaultScale;
 		oversizedBy: 5 @ 5;
 		format: #png;
-		fileName: pngPath asFileReference;
+		fileName: aFileReference;
 		export
 ]
 
 { #category : #handling }
 MeDemoApp >> handleIssuesEdited: payloadDictionary [
-	| oldText newText base fileNameForOld fileNameForNew comment |
+	| oldText newText base comment urlForOld urlForNew |
 	oldText := payloadDictionary chainedAt: #(changes body from).
 	newText := payloadDictionary chainedAt: #(issue body).
 	
 	base := UUID new asString36.
-	fileNameForOld := base, '-old.png'.
-	self exportCloudFor: oldText at: (publicFiles pathFor: fileNameForOld).
-
-	fileNameForNew := base, '-new.png'.
-	self exportCloudFor: newText at: (publicFiles pathFor: fileNameForNew).
+	urlForOld := publicFiles
+		publishAtUniqueFileName: base, '-old.png'
+		do: [:aFileReference | self exportCloudFor: oldText at: aFileReference ].
+	urlForNew := publicFiles
+		publishAtUniqueFileName: base, '-new.png'
+		do: [:aFileReference | self exportCloudFor: newText at: aFileReference ].
 	
 	comment := 'You edited a comment:
 
 | Before | After |
 | ------ | ----- |
 | ![Before]({1}) | ![After]({2}) |
-' format: {publicFiles urlFor: fileNameForOld. publicFiles urlFor: fileNameForNew}.
+' format: { urlForOld. urlForNew }.
 
 	self createComment: comment payload: payloadDictionary.
 ]

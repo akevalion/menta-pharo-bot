@@ -50,7 +50,7 @@ MeGithubAppInstallationCredentials >> ensureFresh [
 
 { #category : #operations }
 MeGithubAppInstallationCredentials >> newAccessToken [
-	"Answer a (not expired) access token for my installation id."
+	"Answer a new access token for the installation id."
 	
 	| payload |
 	payload := MeGithubAPI new
