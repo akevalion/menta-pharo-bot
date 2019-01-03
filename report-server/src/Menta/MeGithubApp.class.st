@@ -62,6 +62,20 @@ MeGithubApp >> freshGithubAppCredentials [
 		yourself
 ]
 
+{ #category : #handling }
+MeGithubApp >> freshInstallationCredentialsFor: installationId [
+	| installationCredentials |
+	installationCredentials := self installationCredentialsCache
+		at: installationId
+		ifAbsentPut: [
+			MeGithubAppInstallationCredentials new
+				githubApp: self;
+				yourself ].
+	^ installationCredentials
+		ensureFresh;
+		yourself
+]
+
 { #category : #operations }
 MeGithubApp >> handleAfterRequest: aTeaRequest response: aResponse [
 	MeLogger current logInfo: (String streamContents: [ :stream | aResponse statusLine printCodeAndReasonOn: stream ])
@@ -106,6 +120,11 @@ MeGithubApp >> id [
 { #category : #accessing }
 MeGithubApp >> id: anObject [
 	id := anObject
+]
+
+{ #category : #handling }
+MeGithubApp >> installationCredentialsCache [
+	^ installationCredentialsCache ifNil: [ installationCredentialsCache := Dictionary new ]
 ]
 
 { #category : #server }
