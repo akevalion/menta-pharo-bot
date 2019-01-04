@@ -70,6 +70,7 @@ MeGithubApp >> freshInstallationCredentialsFor: installationId [
 		ifAbsentPut: [
 			MeGithubAppInstallationCredentials new
 				githubApp: self;
+				installationId: installationId;
 				yourself ].
 	^ installationCredentials
 		ensureFresh;

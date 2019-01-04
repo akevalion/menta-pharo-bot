@@ -48,6 +48,11 @@ MeGithubAppInstallationCredentials >> ensureFresh [
 		ifTrue: [ self refreshAccessToken ]
 ]
 
+{ #category : #accessing }
+MeGithubAppInstallationCredentials >> installationId: aNumber [
+	installationId := aNumber
+]
+
 { #category : #operations }
 MeGithubAppInstallationCredentials >> newAccessToken [
 	"Answer a new access token for the installation id."
