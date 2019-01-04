@@ -1,3 +1,6 @@
+"
+This is a simple logger that helps understanding a MeServer behavior.
+"
 Class {
 	#name : #MeLogger,
 	#superclass : #Object,
@@ -5,21 +8,31 @@ Class {
 		'writeStream',
 		'semaphore'
 	],
-	#category : #Menta
+	#classInstVars : [
+		'current'
+	],
+	#category : #'Menta-Github App'
 }
+
+{ #category : #accessing }
+MeLogger class >> current [
+	^ current ifNil: [ current := self new ]
+]
+
+{ #category : #accessing }
+MeLogger class >> reset [
+	current := nil
+]
 
 { #category : #initialization }
 MeLogger >> initialize [
-
 	super initialize.
-
-	semaphore := Semaphore forMutualExclusion.
-	writeStream := Stdio stdout.
+	semaphore := Semaphore forMutualExclusion
 ]
 
 { #category : #logging }
 MeLogger >> log: aString kind: kind [
-	writeStream
+	self writeStream
 		print: DateAndTime now;
 		nextPut: Character space;
 		nextPut: Character tab;
@@ -52,7 +65,7 @@ MeLogger >> semaphore [
 
 { #category : #accessing }
 MeLogger >> writeStream [
-	^ writeStream
+	^ writeStream ifNil: [ Stdio stdout ]
 ]
 
 { #category : #accessing }
