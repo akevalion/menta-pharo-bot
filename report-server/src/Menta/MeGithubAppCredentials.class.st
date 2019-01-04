@@ -18,7 +18,7 @@ Class {
 	#category : #'Menta-Github API'
 }
 
-{ #category : #options }
+{ #category : #operations }
 MeGithubAppCredentials >> applyTo: aZnClient [
 	"Prepare a HTTP request (in the ZnClient) to authenticate as a Github App.
 	

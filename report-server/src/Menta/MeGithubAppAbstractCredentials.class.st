@@ -22,6 +22,9 @@ MeGithubAppAbstractCredentials >> applyTo: aZnClient [
 
 { #category : #operations }
 MeGithubAppAbstractCredentials >> ensureFresh [
+	"A credential may be outdated, and subclasses should execute the refresh if needed."
+	
+	^ self subclassResponsibility
 ]
 
 { #category : #accessing }
