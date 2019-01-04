@@ -1,9 +1,5 @@
 "
-This are the settings for the public files server of this App.
-
-It includes: 
-* path: the server-internal path to the directory that is exposed to the web
-* url: the location of the exposed directory
+This represents an abstract method to publish files in a server and answer a public URL.
 
 "
 Class {

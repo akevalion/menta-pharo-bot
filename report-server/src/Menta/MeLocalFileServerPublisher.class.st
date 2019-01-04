@@ -1,3 +1,11 @@
+"
+This is a publish method that places the files in a local directory assuming there is an external static file server that allows the access to such files.
+
+It includes: 
+* path: the server-internal path to the directory that is exposed to the web
+* url: the location of the exposed directory
+
+"
 Class {
 	#name : #MeLocalFileServerPublisher,
 	#superclass : #MeFilePublisher,
