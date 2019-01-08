@@ -2,5 +2,5 @@
 deploy_from_scratch.sh
 .env
 *.ston
-report-server/PharoDebug.log
-report-server/build/
+server/PharoDebug.log
+server/build/

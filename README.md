@@ -27,7 +27,7 @@ export WEBHOOK_SECRET=<random>
 
 You can get this information from the Github App's configuration page (https://github.com/settings/apps/<APP_NAME>).
 
-4. Update `report-server/start.sh` with the right URL.
+4. Update `server/start.sh` with the right URL.
 
 5. Restart:
 
