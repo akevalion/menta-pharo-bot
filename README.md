@@ -11,6 +11,10 @@ To start the HTTP server, you should read class comments of MeGithubApp and subc
 
 The `server/start.sh` script starts the Pharo image in headless mode. The image will start two servers: a HTTP server (3000 by default) and a VNC server (5900, the default port).
 
-## Logo/Avatar
+## License
+
+[MIT license](https://mit-license.org/).
+
+## Logo
 
 Thanks to https://openclipart.org/detail/192959/mint-two
