@@ -1,0 +1,14 @@
+MeDemoApp {
+	#id : 123123,
+	#theName : 'menta-pharo-bot-123123',
+	#webhookSecret : ByteArray [ '12343565325343674f5333744b4512326f5673585a7812363778386c43682f65746675434c6a38565335123d' ],
+	#privateKeyPathAsString : '/home/mdias/menta-pharo-bot-123123.2019-01-05.private-key.pem',
+	#portNumber : 3001,
+	#filePublisher : MeLocalFileServerPublisher {
+		#path : FileLocator {
+			#origin : #home,
+			#path : RelativePath [ 'public' ]
+		},
+		#url : 'http://public_url:3000/public/'
+	}
+}
