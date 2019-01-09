@@ -1,6 +1,2 @@
-# non-public data
-deploy_from_scratch.sh
-.env
-*.ston
 server/PharoDebug.log
 server/build/
