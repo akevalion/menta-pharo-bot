@@ -103,7 +103,7 @@ MeDemoApp >> handleIssuesEdited: payloadDictionary [
 		do: [:aFileReference | self exportArrowDiffFrom: oldText to: newText at: aFileReference ].
 	
 	comment := 'You edited a comment:
-{1}
+![Visual Diff]({1})
 ' format: { url }.
 
 	self createComment: comment payload: payloadDictionary.
