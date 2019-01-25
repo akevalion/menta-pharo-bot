@@ -93,7 +93,7 @@ MeGithubApp >> handleBeforeRequest: aTeaRequest [
 ]
 
 { #category : #operations }
-MeGithubApp >> handleGithubHook: aTeaRequest [
+MeGithubApp >> handleGithubRequest: aTeaRequest [
 	| webhook |
 	webhook := MeGithubWebhook newFrom: aTeaRequest.
 
@@ -103,7 +103,7 @@ MeGithubApp >> handleGithubHook: aTeaRequest [
 	"Handle by subclass"
 	self handleWebhook: webhook.
 
-	"Nothing particular to respond the Github Webhook"
+	"Nothing particular to respond to Github"
 	^ ''
 ]
 
@@ -150,7 +150,7 @@ MeGithubApp >> newTeapot [
 		after:  '*'          -> (Send message: #handleAfterRequest:response: to: self);
 
 		GET:    '/alive'     -> (Send message: #handleAlive: to: self);
-		POST:   '/'          -> (Send message: #handleGithubHook: to: self);
+		POST:   '/'          -> (Send message: #handleGithubRequest: to: self);
 
 		exception: MeBadRequestError -> [ :error :request | 
 			MeLogger current logError: error.

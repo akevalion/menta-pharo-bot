@@ -58,12 +58,20 @@ MeDemoApp >> createComment: aString payload: payloadDictionary [
 ]
 
 { #category : #handling }
-MeDemoApp >> exportCloudFor: aString at: aFileReference [
-	| view canvas |
-	view := (RTNameCloud new addString: (' ' join: aString); build) view.
-	canvas := view canvas.
+MeDemoApp >> exportArrowDiffFrom: oldText to: newText at: aFileReference [
+	
+	| view e1 e2 |
+	view := RTView new.
 
-	(RTCanvasExporter canvas: canvas)
+	e1 := RTLabel new elementOn: oldText.
+	e2 := RTLabel new elementOn: newText.
+	view add: e1; add: e2.
+
+	view add: (RTEdge from: e1 to: e2) + (RTLine new color: Color red) + (RTSimpleArrowHead new color: Color red).
+
+	RTTreeLayout on: {e1. e2}.
+
+	(RTCanvasExporter canvas: view canvas)
 		withoutFixedShapes;
 		whole;
 		defaultScale;
@@ -85,24 +93,18 @@ MeDemoApp >> filePublisher: aMeFilePublisher [
 
 { #category : #handling }
 MeDemoApp >> handleIssuesEdited: payloadDictionary [
-	| oldText newText base comment urlForOld urlForNew |
+	| oldText newText base comment url |
 	oldText := payloadDictionary chainedAt: #(changes body from).
 	newText := payloadDictionary chainedAt: #(issue body).
 	
 	base := UUID new asString36.
-	urlForOld := filePublisher
-		publishAtUniqueFileName: base, '-old.png'
-		do: [:aFileReference | self exportCloudFor: oldText at: aFileReference ].
-	urlForNew := filePublisher
-		publishAtUniqueFileName: base, '-new.png'
-		do: [:aFileReference | self exportCloudFor: newText at: aFileReference ].
+	url := filePublisher
+		publishAtUniqueFileName: base, '.png'
+		do: [:aFileReference | self exportArrowDiffFrom: oldText to: newText at: aFileReference ].
 	
 	comment := 'You edited a comment:
-
-| Before | After |
-| ------ | ----- |
-| ![Before]({1}) | ![After]({2}) |
-' format: { urlForOld. urlForNew }.
+{1}
+' format: { url }.
 
 	self createComment: comment payload: payloadDictionary.
 ]
