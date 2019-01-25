@@ -114,5 +114,5 @@ MeDemoApp >> handleWebhook: aMeGithubWebhook [
 
 	(aMeGithubWebhook event = 'issues' and: [ aMeGithubWebhook action = 'edited' ])
 		ifTrue: [ self handleIssuesEdited: aMeGithubWebhook payload ]
-		ifFalse: [ Halt if: [ Smalltalk isHeadless not ] ]
+		ifFalse: [ Halt if: [ MeEasy isMorphicUIManagerActive ] ]
 ]

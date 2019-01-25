@@ -7,6 +7,11 @@ Class {
 	#category : #'Menta-Github App'
 }
 
+{ #category : #testing }
+MeEasy class >> isMorphicUIManagerActive [
+	 ^ UIManager default class isActiveManager
+]
+
 { #category : #convenience }
 MeEasy class >> readFromStonFileAt: aFileReference [
 	^ aFileReference readStreamDo: [ :stream | STON fromStream: stream ]

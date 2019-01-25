@@ -161,7 +161,7 @@ MeGithubApp >> newTeapot [
 		exception: Error -> [ :error :request |
 			MeLogger current logError: error.
 			"Very useful for development"
-			Smalltalk isHeadless ifFalse: [ error debug ].
+			MeEasy isMorphicUIManagerActive ifTrue: [ error debug ].
 			TeaResponse serverError
 				body: { 'error' -> error messageText } asDictionary;
 				yourself ].
