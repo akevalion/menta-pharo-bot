@@ -46,7 +46,7 @@ MeDemoApp class >> fileReferenceToExampleConfigurationFile [
 	^ (Menta repositoryPath / self instanceSide name, 'ston') asFileReference
 ]
 
-{ #category : #handling }
+{ #category : #operations }
 MeDemoApp >> createComment: aString payload: payloadDictionary [
 	MeGithubAPI new
 		credentials: (self freshInstallationCredentialsFor: (payloadDictionary chainedAt: #(installation id)));
@@ -57,7 +57,7 @@ MeDemoApp >> createComment: aString payload: payloadDictionary [
 		post
 ]
 
-{ #category : #handling }
+{ #category : #operations }
 MeDemoApp >> exportArrowDiffFrom: oldText to: newText at: aFileReference [
 	
 	| view e1 e2 |
@@ -91,11 +91,37 @@ MeDemoApp >> filePublisher: aMeFilePublisher [
 	filePublisher := aMeFilePublisher
 ]
 
-{ #category : #handling }
-MeDemoApp >> handleIssuesEdited: payloadDictionary [
+{ #category : #operations }
+MeDemoApp >> handleIssueCommentCreated: payloadDictionary [
+	
+	| text base comment url |
+	'Bot' = (payloadDictionary chainedAt: #(sender type)) ifTrue: [
+		"Avoid infinite cycle!"
+		^ self ].
+	
+	text := payloadDictionary chainedAt: #(comment body).
+	
+	base := UUID new asString36.
+	url := filePublisher
+		publishAtUniqueFileName: base, '.png'
+		do: [:aFileReference | self exportArrowDiffFrom: '' to: text at: aFileReference ].
+	
+	comment := 'You created a comment:
+![Visual Diff]({1})
+' format: { url }.
+
+	self createComment: comment payload: payloadDictionary.
+]
+
+{ #category : #operations }
+MeDemoApp >> handleIssueCommentEdited: payloadDictionary [
 	| oldText newText base comment url |
+	'Bot' = (payloadDictionary chainedAt: #(comment user type)) ifTrue: [
+		"Arbitrary decision: ignore edits on a Bot comment."
+		^ self ].
+
 	oldText := payloadDictionary chainedAt: #(changes body from).
-	newText := payloadDictionary chainedAt: #(issue body).
+	newText := payloadDictionary chainedAt: #(comment body).
 	
 	base := UUID new asString36.
 	url := filePublisher
@@ -112,7 +138,16 @@ MeDemoApp >> handleIssuesEdited: payloadDictionary [
 { #category : #operations }
 MeDemoApp >> handleWebhook: aMeGithubWebhook [
 
-	(aMeGithubWebhook event = 'issues' and: [ aMeGithubWebhook action = 'edited' ])
-		ifTrue: [ self handleIssuesEdited: aMeGithubWebhook payload ]
-		ifFalse: [ Halt if: [ MeEasy isMorphicUIManagerActive ] ]
+	| actionSpec |
+	actionSpec := { aMeGithubWebhook event. aMeGithubWebhook action }.
+
+	actionSpec = #('issue_comment' 'created') ifTrue: [ 
+		^ self handleIssueCommentCreated: aMeGithubWebhook payload ].
+
+	actionSpec = #('issue_comment' 'edited') ifTrue: [ 
+		^ self handleIssueCommentEdited: aMeGithubWebhook payload ].
+
+	MeEasy isMorphicUIManagerActive
+		ifTrue: [ Halt now ]
+		ifFalse: [ MeLogger current logInfo: 'Ignored: ', actionSpec asString ]
 ]

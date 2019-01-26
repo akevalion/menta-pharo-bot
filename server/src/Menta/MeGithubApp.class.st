@@ -62,7 +62,7 @@ MeGithubApp >> freshGithubAppCredentials [
 		yourself
 ]
 
-{ #category : #handling }
+{ #category : #accessing }
 MeGithubApp >> freshInstallationCredentialsFor: installationId [
 	| installationCredentials |
 	installationCredentials := self installationCredentialsCache
@@ -123,7 +123,7 @@ MeGithubApp >> id: anObject [
 	id := anObject
 ]
 
-{ #category : #handling }
+{ #category : #accessing }
 MeGithubApp >> installationCredentialsCache [
 	^ installationCredentialsCache ifNil: [ installationCredentialsCache := Dictionary new ]
 ]
