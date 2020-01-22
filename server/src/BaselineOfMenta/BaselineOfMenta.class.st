@@ -43,7 +43,7 @@ BaselineOfMenta >> rfb: spec [
 BaselineOfMenta >> roassal2: spec [
 	spec
 		baseline: 'Roassal2'
-		with: [ spec repository: 'github://ObjectProfile/Roassal2:45a5c24cc6ad5a0c668c6c3063dcb4e6cba25c07/src' ]
+		with: [ spec repository: 'github://ObjectProfile/Roassal2:master/src' ]
 ]
 
 { #category : #baselines }
