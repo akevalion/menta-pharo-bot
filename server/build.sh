@@ -12,7 +12,7 @@ mkdir build
 cd build
 
 # download image and vm
-curl get.pharo.org/70+vm | bash
+curl https://get.pharo.org/64/80+vm | bash
 
 # load code
 ./pharo Pharo.image metacello install $REPO BaselineOfMenta
