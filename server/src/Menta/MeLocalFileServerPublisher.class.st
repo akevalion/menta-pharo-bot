@@ -18,8 +18,11 @@ MeLocalFileServerPublisher >> path [
 ]
 
 { #category : #accessing }
-MeLocalFileServerPublisher >> path: anObject [
-	path := anObject
+MeLocalFileServerPublisher >> path: aFileSystemPath [
+	"Set the server's internal path to the directory that is exposed to the web.
+	The file will be written there."
+	
+	path := aFileSystemPath
 ]
 
 { #category : #accessing }
@@ -39,8 +42,13 @@ MeLocalFileServerPublisher >> url [
 ]
 
 { #category : #accessing }
-MeLocalFileServerPublisher >> url: anObject [
-	url := anObject
+MeLocalFileServerPublisher >> url: aString [
+	"Set the location of the exposed directory.
+	
+	The expected argument is a url represented as a String, which ends with slash. 
+	For example, 'http://server.com:8080/public/'"
+
+	url := aString
 ]
 
 { #category : #accessing }
