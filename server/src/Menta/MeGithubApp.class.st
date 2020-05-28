@@ -119,8 +119,8 @@ MeGithubApp >> id [
 ]
 
 { #category : #accessing }
-MeGithubApp >> id: anObject [
-	id := anObject
+MeGithubApp >> id: aNumber [
+	id := aNumber
 ]
 
 { #category : #accessing }
@@ -200,8 +200,8 @@ MeGithubApp >> theName [
 ]
 
 { #category : #accessing }
-MeGithubApp >> theName: anObject [
-	theName := anObject
+MeGithubApp >> theName: aString [
+	theName := aString
 ]
 
 { #category : #accessing }
@@ -210,6 +210,6 @@ MeGithubApp >> webhookSecret [
 ]
 
 { #category : #accessing }
-MeGithubApp >> webhookSecret: anObject [
-	webhookSecret := anObject
+MeGithubApp >> webhookSecret: aByteArray [
+	webhookSecret := aByteArray
 ]
