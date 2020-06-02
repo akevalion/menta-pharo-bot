@@ -13,19 +13,19 @@ BaselineOfMenta >> baseline: spec [
 			self
 				teapot: spec;
 				roassal2: spec;
-				osSubprocess: spec;
+				jsonWebToken: spec;
 				rfb: spec.
 			
-			spec package: 'Menta' with: [ spec requires: #('Teapot' 'Roassal2' 'OSSubprocess' 'RFB') ].
+			spec package: 'Menta' with: [ spec requires: #('Teapot' 'Roassal2' 'JSONWebToken' 'RFB') ].
 			spec group: 'default' with: #('Menta')
 			]
 ]
 
 { #category : #baselines }
-BaselineOfMenta >> osSubprocess: spec [
+BaselineOfMenta >> jsonWebToken: spec [
 	spec 
-		baseline: 'OSSubprocess'
-		with: [ spec repository: 'github://pharo-contributions/OSSubprocess:v1.0.1/repository' ]
+		baseline: 'JSONWebToken'
+		with: [ spec repository: 'github://noha/JSONWebToken:0.3/source' ]
 ]
 
 { #category : #baselines }
