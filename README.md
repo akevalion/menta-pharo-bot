@@ -1,7 +1,8 @@
 # Menta
-<img src="assets/mint.png" alt="logo" width="100"/>
 
-> A small [Pharo](https://pharo.org/) example/framework that start creating your own GitHub App that interacts with GitHub via their APIs and webhooks.
+A small [Pharo](https://pharo.org/) example/framework to start creating your own GitHub App. An example App shows how to interact with GitHub via their APIs and webhooks.
+
+<img src="assets/mint.png" alt="logo" width="100"/>
 
 ## How to use
 
