@@ -3,17 +3,18 @@
 # We want to fail on bad exit codes
 set -e
 
-BASEDIR=$(pwd)
-REPO="tonel://$BASEDIR/src"
-
+BASEDIR=$(dirname $(readlink -f $0))
 echo ""
-echo " ---------------------------------"
-echo "| Ensure a clean build/ directory |"
-echo " ---------------------------------"
+echo " ----------------------------------"
+echo "| Ensuring a clean build directory |"
+echo " ----------------------------------"
 echo ""
+echo "Directory: $BASEDIR/build/"
+cd $BASEDIR
 rm -rf build
 mkdir build
 cd build
+echo "DONE"
 
 echo ""
 echo " -------------------"
@@ -27,6 +28,9 @@ echo " -------------------------------"
 echo "| Loading code and dependencies |"
 echo " -------------------------------"
 echo ""
+REPO="tonel://$BASEDIR/src"
+echo "Repository: $REPO"
+echo ""
 ./pharo Pharo.image metacello install $REPO BaselineOfMenta
 
 echo ""
@@ -34,5 +38,4 @@ echo " -------------------------"
 echo "| Build Finished: SUCCESS |"
 echo " -------------------------"
 echo ""
-echo "Run './start.sh' to start the server."
 exit 0
