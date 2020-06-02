@@ -11,11 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
-    - name: Builder server
-      run: server/build.sh
+    - name: Build
+      run: ./server/build.sh
 
-    - name: Start server
-      run: server/start.sh
+    - name: Start server and ping
+      run: echo TODO
