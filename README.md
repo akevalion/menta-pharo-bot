@@ -8,15 +8,19 @@ The example GH App shows how to react to new comments in a repository's issues b
 
 ## How to use
 
-The `server/build.sh ` script downloads a Pharo image, loads the code and it's dependencies. 
+The `./server/build.sh ` script downloads a Pharo image, loads the code and it's dependencies. 
 
 Browse the code by starting the image with `./pharo-ui Pharo.image` in the `server/build` directory.
 
 To interact with GitHub, you must setup your GitHub App with an ID and PEM private key. Read class comments of `MeGithubApp` and subclasses to learn about it.
 
-Deploy on a server that can be accessed via two ports. The `server/start.sh` script starts the Pharo image in headless mode with: 
+Deploy on a server that can be accessed via two ports. The `./server/start.sh` script starts the Pharo image in headless mode with: 
 - HTTP server (port 3000 by default) to receive GH webhook requests.
 - VNC server (port 5900 by default) to allow debugging on deploy environemt with a VNC client.
+
+## CI status
+
+![CI](https://github.com/tinchodias/menta-pharo-bot/workflows/CI/badge.svg)
 
 ## License
 
