@@ -1,6 +1,6 @@
 # Menta
 
-A small [Pharo](https://pharo.org/) example that can server as a starting point to create your own GitHub App. 
+A small [Pharo](https://pharo.org/) example that can serve as a starting point to create your own GitHub App. 
 
 The example GH App shows how to react to new comments in a repository's issues by posting a Roassal2 visualization. The interaction with GitHub is done via their REST API and webhooks.
 
