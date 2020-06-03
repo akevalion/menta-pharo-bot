@@ -50,16 +50,23 @@ MeGithubAppCredentials >> jwtString [
 
 { #category : #options }
 MeGithubAppCredentials >> newJwtString [
-	OSSUnixSubprocess new
-		shellCommand: ('node {1}/jwt-generator/index.js {2} {3}' 
-			format: {
-				Menta repositoryPath pathString.
-				githubApp id. 
-				githubApp privateKeyPathAsString });
-		redirectStdout;
-		runAndWaitOnExitDo: [ :command :outString | 
-			"Last character is lf, which breaks the HTTP request header." 
-			^ outString allButLast ]
+
+	| secondsSince1970 payload pemKey |
+	secondsSince1970 := DateAndTime now asUnixTime.
+	payload := (JWTClaimsSet new
+				iat: secondsSince1970;
+				exp: secondsSince1970 + (10 * 60);
+				iss: githubApp id;
+				yourself).
+
+	pemKey := githubApp privateKeyPathAsString asFileReference contents.
+
+	^ JsonWebSignature new
+		algorithmName: 'RS256';
+		payload: payload;
+		key: pemKey;
+		compactSerialized
+
 ]
 
 { #category : #options }

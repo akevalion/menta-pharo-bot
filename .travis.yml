@@ -2,4 +2,4 @@ language: node_js
 node_js:
   - "8.3"
 script:
-  - build_all.sh
+  - server/build.sh
