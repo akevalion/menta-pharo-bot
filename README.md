@@ -25,4 +25,5 @@ Deploy on a server that can be accessed via two ports. The `./server/start.sh` s
 ## License
 
 The code is licensed under [MIT](https://mit-license.org/).
+
 The logo is licensed under [CC0 1.0 Universal (CC0 1.0)](https://openclipart.org/share). Thanks to https://openclipart.org/detail/192959/mint-two.
